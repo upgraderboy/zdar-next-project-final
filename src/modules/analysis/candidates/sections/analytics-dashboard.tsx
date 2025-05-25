@@ -6,9 +6,29 @@ import { ChartsGrid } from "../components/charts-grid"
 import { DataTable } from "../components/data-table"
 import type { FilterState } from "../components/types"
 import { trpc } from "@/trpc/client"
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { Skeleton } from "@/components/ui/skeleton";
+export const AnalyticsDashboardSection = () => {
+    return (
+        <Suspense fallback={<AnalyticsDashboardSkeleton />}>
+            <ErrorBoundary fallback={<div>Something went wrong</div>}>
+                <AnalyticsDashboardSuspense />
+            </ErrorBoundary>
+        </Suspense>
+    )
+}
 
-export default function AnalyticsDashboard() {
-  const [data] = trpc.analysis.candidateAnalysis.useSuspenseQuery();
+const AnalyticsDashboardSkeleton = () => {
+    return (
+        <div>
+            <Skeleton className="h-4 w-32 mb-2" />
+            <Skeleton className="h-10 w-full rounded-md" />
+        </div>
+    )
+}
+export default function AnalyticsDashboardSuspense() {
+  const [data, { isPending }] = trpc.analysis.candidateAnalysis.useSuspenseQuery();
   const [filters, setFilters] = useState<FilterState>({})
   const [searchTerm, setSearchTerm] = useState("")
 

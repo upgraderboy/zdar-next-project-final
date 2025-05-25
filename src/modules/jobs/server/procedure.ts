@@ -203,10 +203,13 @@ export const jobRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id } = ctx.user;
       const { jobId } = input;
+      if (!ctx.user.defaultResumeId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Default resume not found" });
+      }
       const job = await db.insert(jobApplications).values({
         jobId,
         candidateId: id,
-        resumeId: id,
+        resumeId: ctx.user.defaultResumeId,
       });
       return job;
     }),
