@@ -1,27 +1,15 @@
-import { Button } from "@/components/ui/button";
 import { CandidateWithResume } from "@/modules/candidates/server/procedure";
-import { Heart, ZoomIn } from "lucide-react";
+import { Heart } from "lucide-react";
+import { useFavoriteCandidates } from "@/hooks/useFavCandidates";
 export const CandidateAction = ({ candidate }: { candidate: CandidateWithResume }) => {
+    const { isFavorite, toggleFavorite } = useFavoriteCandidates()
     return (
         <div className="w-full flex items-center justify-center">
-            <Button
-                variant="outline"
-                className="ml-auto"
-                onClick={() => {
-                    console.log(candidate);
-                }} asChild
-            >
-                <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button
-                variant="outline"
-                className="ml-auto"
-                onClick={() => {
-                    console.log(candidate);
-                }} asChild
-            >
-                <Heart className={true ? "fill-red-500 text-red-500" : ""} />
-            </Button>
+            <Heart
+                className={`w-4 h-4 cursor-pointer ${isFavorite(candidate.id) ? "fill-red-500 text-red-500" : "fill-gray-500 text-gray-500"
+                    }`}
+                onClick={() => toggleFavorite(candidate.id)}
+            />
         </div>
     );
 };

@@ -69,13 +69,13 @@ export default function ApplicantsList() {
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{job.description}</p>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {job.hardSkills.slice(0, 3).map((skill) => (
-                    <Badge key={skill} variant="secondary" className="text-xs">
+                  {job.hardSkills.slice(0, 3).map((skill, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
                       {skill}
                     </Badge>
                   ))}
                   {job.hardSkills.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge key={job.hardSkills.length} variant="secondary" className="text-xs">
                       +{job.hardSkills.length - 3} more
                     </Badge>
                   )}

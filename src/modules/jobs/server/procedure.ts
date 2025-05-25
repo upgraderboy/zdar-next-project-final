@@ -34,6 +34,12 @@ export const jobRouter = createTRPCRouter({
       const { id } = ctx.user;
       const job = await db.insert(jobs).values({
         ...input,
+        hardSkills: input.hardSkills
+        ?.map((s) => s.trim())
+        .filter((s) => s.length > 0),
+      softSkills: input.softSkills
+        ?.map((s) => s.trim())
+        .filter((s) => s.length > 0),
         companyId: id,
       });
       return job;
@@ -42,7 +48,15 @@ export const jobRouter = createTRPCRouter({
     .input(jobUpdateSchema)
     .mutation(async ({ ctx, input }) => {
       const { id } = ctx.user;
-      const job = await db.update(jobs).set(input).where(eq(jobs.companyId, id));
+      const job = await db.update(jobs).set({
+        ...input,
+        hardSkills: input.hardSkills
+        ?.map((s) => s.trim())
+        .filter((s) => s.length > 0),
+      softSkills: input.softSkills
+        ?.map((s) => s.trim())
+        .filter((s) => s.length > 0),
+      }).where(eq(jobs.companyId, id));
       return job;
     }),
   getJob: companyProcedure

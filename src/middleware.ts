@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 // 🎯 Role-restricted dashboard routes
 const isCandidateDashboard = createRouteMatcher(['/candidates(.*)', '/resume(.*)', '/jobs(.*)'])
-const isCompanyDashboard = createRouteMatcher(['/companies(.*)', '/jobs(.*)'])
+const isCompanyDashboard = createRouteMatcher(['/companies(.*)', '/jobs(.*)', '/candidates'])
 
 // 🧭 Onboarding routes
 const isOnboardingRoute = createRouteMatcher(['/onboarding'])
@@ -13,7 +13,8 @@ const isLoggedInPublicRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/profile(.*)',
   '/jobs(.*)',
-  '/favorites(.*)'
+  '/favorites(.*)',
+  '/candidates(.*)'
 ])
 
 export default clerkMiddleware(async (auth, req) => {

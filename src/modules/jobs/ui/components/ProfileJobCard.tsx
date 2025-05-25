@@ -37,14 +37,14 @@ export default function ProfileJobCard({ job }: { job: GetAllJobsOutput[number] 
               </h2>
               <div className="flex items-center space-x-2">
                 <Button variant="ghost" size="icon">
+                <Link href={`/jobs/${job.id}/update`}>
                   <Edit2 className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      <Link href={`/jobs/${job.id}/update`}>
                       <MoreVertical className="h-4 w-4" />
-                      </Link>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

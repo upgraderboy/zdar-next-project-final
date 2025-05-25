@@ -18,12 +18,18 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ageOptions } from "@/types"
 import LoadingButton from "@/modules/resumes/ui/components/LoadingButton"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 interface JobFormProps {
   initialData?: z.infer<typeof jobInsertSchema> & { id?: string }; // id optional for new record
 }
 export default function JobForm({ initialData }: JobFormProps) {
   const isEdit = !!initialData?.id;
-
+  const [softSkillsInput, setSoftSkillsInput] = useState(
+        (initialData?.softSkills || []).join(", ")
+      );
+      const [hardSkillsInput, setHardSkillsInput] = useState(
+        (initialData?.hardSkills || []).join(", ")
+      );
   console.log(isEdit)
   const utils = trpc.useUtils();
   const router = useRouter();
@@ -35,6 +41,14 @@ export default function JobForm({ initialData }: JobFormProps) {
     },
   });
 
+  const handleSkillsChange = (
+    rawValue: string,
+    setInput: React.Dispatch<React.SetStateAction<string>>,
+    fieldName: "softSkills" | "hardSkills"
+  ) => {
+    setInput(rawValue);
+    form.setValue(fieldName, rawValue.split(",").map((s) => s.trim()).filter(Boolean));
+  };
   const updateJob = trpc.job.updateJob.useMutation({
     onSuccess: () => {
       utils.job.invalidate(); // refetch after update
@@ -220,14 +234,14 @@ export default function JobForm({ initialData }: JobFormProps) {
             <FormItem>
               <FormLabel>Hard Skills</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="e.g. JavaScript, Python, UI/UX Design"
-                  value={field.value?.join(", ") || ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value.split(",").map((s) => s.trim()))
-                  }
-                />
+              <Textarea
+                      {...field}
+                      placeholder="e.g. JavaScript, Python, UI/UX Design"
+                      value={hardSkillsInput}
+                      onChange={(e) =>
+                        handleSkillsChange(e.target.value, setHardSkillsInput, "hardSkills")
+                      }
+                    />
               </FormControl>
               <FormDescription>e.g. technical or job-specific skills</FormDescription>
               <FormMessage />
@@ -242,12 +256,12 @@ export default function JobForm({ initialData }: JobFormProps) {
             <FormItem>
               <FormLabel>Soft Skills</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="e.g. Communication, Teamwork, Adaptability"
-                  value={field.value?.join(", ") || ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value.split(",").map((s) => s.trim()))
+              <Textarea
+                      {...field}
+                      placeholder="e.g. Communication, Teamwork, Adaptability"
+                      value={softSkillsInput}
+                      onChange={(e) =>
+                        handleSkillsChange(e.target.value, setSoftSkillsInput, "softSkills")
                   }
                 />
               </FormControl>

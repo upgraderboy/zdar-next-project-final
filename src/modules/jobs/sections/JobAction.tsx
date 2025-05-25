@@ -8,7 +8,7 @@ import { useFavoriteJobs } from "@/hooks/useFavJobs"
 export default function JobAction({ job }: { job: GetAllJobsOutput[number] }) {
   const { data: status } = trpc.job.checkApplied.useQuery({ jobId: job.id });
   // const { mutate: toggleApplication } = trpc.job.toggleApplication.useMutation()
-  const { isFavorite, toggleFavorite } = useFavoriteJobs()
+  const { isFavorite, toggleFavorite } = useFavoriteJobs();
   const [showModal, setShowModal] = useState(false);
 
   return (

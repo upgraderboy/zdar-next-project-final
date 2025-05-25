@@ -134,8 +134,8 @@ export function JobApplicationsDialog({ job, open, onOpenChange }: JobApplicatio
                 <div>
                   <h5 className="font-medium mb-2">Skills</h5>
                   <div className="flex flex-wrap gap-2">
-                    {application.resume?.resumes?.hardSkills?.map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-xs">
+                    {application.resume?.resumes?.hardSkills?.map((skill, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
                         {skill}
                       </Badge>
                     ))}

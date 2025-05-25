@@ -19,12 +19,6 @@ const candidateItems = [
         auth: true
     },
     {
-        title: "Job List",
-        href: "/jobs",
-        icon: HeartIcon,
-        auth: true
-    },
-    {
         title: "My Job Applications",
         href: "applications",
         icon: FormInputIcon,
@@ -33,6 +27,24 @@ const candidateItems = [
     {
         title: "Favorite Jobs",
         href: "/favorites",
+        icon: FileIcon,
+        auth: true
+    },
+    {
+        title: "All Candidates",
+        href: "/candidates",
+        icon: FileIcon,
+        auth: true
+    },
+    {
+        title: "All Jobs",
+        href: "/jobs",
+        icon: HeartIcon,
+        auth: true
+    },
+    {
+        title: "All Companies",
+        href: "/companies",
         icon: FileIcon,
         auth: true
     }
@@ -55,8 +67,26 @@ const companyItems = [
     },
     {
         title: "My Job Applications",
-        href: "/companies/applications",
+        href: "/applications",
         icon: FlameIcon,
+    },
+    {
+        title: "All Candidates",
+        href: "/candidates",
+        icon: FileIcon,
+        auth: true
+    },
+    {
+        title: "All Jobs",
+        href: "/jobs",
+        icon: HeartIcon,
+        auth: true
+    },
+    {
+        title: "All Companies",
+        href: "/companies",
+        icon: FileIcon,
+        auth: true
     }
 ]
 const defaultItems = [
@@ -91,7 +121,7 @@ const defaultItems = [
         icon: FlameIcon,
     }
 ]
-export const NavigationSidebar = ({role, userId}: {role?: Roles, userId?: string}) => {
+export const NavigationSidebar = ({ role, userId }: { role?: Roles, userId?: string }) => {
     console.log(role, userId);
     // const user = useClerk();
     return (
@@ -107,10 +137,10 @@ export const NavigationSidebar = ({role, userId}: {role?: Roles, userId?: string
                                             <SidebarMenuItem key={item.title}>
                                                 <SidebarMenuButton tooltip={item.title} asChild isActive={false} onClick={() => {
                                                     // if (!userId) {
-                                                        // e.preventDefault();
-                                                        // return user.openSignIn({
-                                                        //     redirectUrl: window.location.href,
-                                                        // });
+                                                    // e.preventDefault();
+                                                    // return user.openSignIn({
+                                                    //     redirectUrl: window.location.href,
+                                                    // });
                                                     // }
                                                 }}>
                                                     <Link href={item.href} className="flex items-center gap-4">
@@ -137,10 +167,10 @@ export const NavigationSidebar = ({role, userId}: {role?: Roles, userId?: string
                                             <SidebarMenuItem key={item.title}>
                                                 <SidebarMenuButton tooltip={item.title} asChild isActive={false} onClick={(e) => {
                                                     // if (!userId) {
-                                                        e.preventDefault();
-                                                        // return user.openSignIn({
-                                                        //     redirectUrl: window.location.href,
-                                                        // });
+                                                    e.preventDefault();
+                                                    // return user.openSignIn({
+                                                    //     redirectUrl: window.location.href,
+                                                    // });
                                                     // }
                                                 }}>
                                                     <Link href={item.href} className="flex items-center gap-4">
@@ -167,10 +197,10 @@ export const NavigationSidebar = ({role, userId}: {role?: Roles, userId?: string
                                             <SidebarMenuItem key={item.title}>
                                                 <SidebarMenuButton tooltip={item.title} asChild isActive={false} onClick={() => {
                                                     // if (userId) {
-                                                        // e.preventDefault();
-                                                        // return user.openSignIn({
-                                                        //     redirectUrl: window.location.href,
-                                                        // });
+                                                    // e.preventDefault();
+                                                    // return user.openSignIn({
+                                                    //     redirectUrl: window.location.href,
+                                                    // });
                                                     // }
                                                 }}>
                                                     <Link href={item.href} className="flex items-center gap-4">

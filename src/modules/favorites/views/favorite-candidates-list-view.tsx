@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CandidateCard } from "@/modules/candidates/ui/components/candidate-list/CandidateCard";
 import { trpc } from "@/trpc/client";
 import { Search } from "lucide-react";
@@ -74,7 +75,27 @@ export default function FavoriteCandidatesView() {
 
             {/* 📋 Candidate Cards */}
             {isLoading ? (
-                <div>Loading...</div>
+                <div>
+                    <Skeleton className="h-8 w-48" />
+                    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="space-y-4 p-6 border rounded-lg">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-20 w-full" />
+                                <div className="flex gap-2">
+                                    <Skeleton className="h-6 w-16" />
+                                    <Skeleton className="h-6 w-20" />
+                                    <Skeleton className="h-6 w-24" />
+                                </div>
+                                <div className="flex gap-2">
+                                    <Skeleton className="h-10 flex-1" />
+                                    <Skeleton className="h-10 w-32" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             ) : (
                 <div className="w-full container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {data?.map((candidate) => (

@@ -109,6 +109,12 @@ export const resumeRouter = createTRPCRouter({
 
     const resumeData = {
       ...resumeValues,
+      hardSkills: resumeValues.hardSkills
+        ?.map((s) => s.trim())
+        .filter((s) => s.length > 0),
+      softSkills: resumeValues.softSkills
+        ?.map((s) => s.trim())
+        .filter((s) => s.length > 0),
       lat: Number(resumeValues.lat),
       lng: Number(resumeValues.lng),
       updatedAt: new Date(),
@@ -211,7 +217,7 @@ export const resumeRouter = createTRPCRouter({
       .leftJoin(educations, eq(resumes.id, educations.resumeId))
       .where(eq(resumes.userId, userId))
       .orderBy(desc(resumes.createdAt));
-      console.log("-------------------Error------------------")
+    console.log("-------------------Error------------------")
     // console.log("userResumes: ", userResumes)
     // Group the results to create the ResumeServerData structure
     const groupedResumes = groupBy(userResumes, 'id');
@@ -244,7 +250,7 @@ export const resumeRouter = createTRPCRouter({
       .from(resumes)
       .where(eq(resumes.userId, userId));
     const [usedResume] = await db.select().from(jobApplications).where(eq(jobApplications.resumeId, id));
-    if(usedResume){
+    if (usedResume) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "You cannot delete the resume that is being used in a job application.",
@@ -287,35 +293,35 @@ export const resumeRouter = createTRPCRouter({
     });
     console.log("Id: ", id)
     // ✅ Corrected version using candidates table only
-    
+
 
 
 
 
 
     // Step 1: Fetch resume
-  const resume = await db.select().from(resumes).where(and(eq(resumes.id, id), eq(resumes.userId, userId))).then(res => res[0]);
+    const resume = await db.select().from(resumes).where(and(eq(resumes.id, id), eq(resumes.userId, userId))).then(res => res[0]);
 
-  if (!resume) throw new TRPCError({ code: "NOT_FOUND", message: "Resume not found" });
+    if (!resume) throw new TRPCError({ code: "NOT_FOUND", message: "Resume not found" });
 
-  // Step 2: Validate required fields
-  const requiredFields: (keyof typeof resume)[] = [
-    "firstName", "lastName", "jobTitle", "city", "country", "phone", "email",
-    "lat", "lng", "summary", "age", "skillType", "gender", "disability", "experienceLevel", "jobType", "softSkills", "hardSkills"
-  ];
+    // Step 2: Validate required fields
+    const requiredFields: (keyof typeof resume)[] = [
+      "firstName", "lastName", "jobTitle", "city", "country", "phone", "email",
+      "lat", "lng", "summary", "age", "skillType", "gender", "disability", "experienceLevel", "jobType", "softSkills", "hardSkills"
+    ];
 
-  const missingField = requiredFields.find((field) => {
-    const value = resume[field];
-    if (Array.isArray(value)) return value.length === 0;
-    return value === null || value === undefined || value === "";
-  });
-
-  if (missingField) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: `Please add '${missingField}' to set this resume as default.`,
+    const missingField = requiredFields.find((field) => {
+      const value = resume[field];
+      if (Array.isArray(value)) return value.length === 0;
+      return value === null || value === undefined || value === "";
     });
-  }
+
+    if (missingField) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Please add '${missingField}' to set this resume as default.`,
+      });
+    }
     const result = await db
       .update(candidates)
       .set({ defaultResumeId: id })
@@ -331,7 +337,7 @@ export const resumeRouter = createTRPCRouter({
           )
         )
       );
-      console.log("result: ", result)
+    console.log("result: ", result)
     return { id };
   }),
   publicResume: candidateProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
