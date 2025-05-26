@@ -28,7 +28,7 @@ const AnalyticsDashboardSkeleton = () => {
     )
 }
 export default function AnalyticsDashboardSuspense() {
-  const [data, { isPending }] = trpc.analysis.candidateAnalysis.useSuspenseQuery();
+  const [data] = trpc.analysis.candidateAnalysis.useSuspenseQuery();
   const [filters, setFilters] = useState<FilterState>({})
   const [searchTerm, setSearchTerm] = useState("")
 

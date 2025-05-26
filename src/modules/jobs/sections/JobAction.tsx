@@ -7,15 +7,18 @@ import JobApplicationModal from "@/modules/resumes/ui/components/ResumeSelectMod
 import { useFavoriteJobs } from "@/hooks/useFavJobs"
 import { toast } from "sonner"
 export default function JobAction({ job }: { job: GetAllJobsOutput[number] }) {
+  const utils = trpc.useUtils();
   const { data: status } = trpc.job.checkApplied.useQuery({ jobId: job.id });
   const { mutate: toggleApplication } = trpc.job.addJobApplication.useMutation({
     onSuccess: () => {
       toast("Applied successfully");
+      utils.applications.getApplicationsByCandidate.invalidate();
     },
     onError: (err) => {
       toast(err.message);
     }
   })
+  console.log(status)
   const { isFavorite, toggleFavorite } = useFavoriteJobs();
   const [showModal, setShowModal] = useState(false);
 

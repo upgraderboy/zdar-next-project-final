@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { useUser } from "@clerk/nextjs"
-import { ClapperboardIcon, Home, Receipt, UserCircleIcon } from "lucide-react"
+import { UserCircleIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 
 export const AuthButton = () => {
-    const { user } = useUser()
     const { isLoaded } = useUser()
     const pathName = usePathname();
     // !isSignedIn ? (
@@ -24,7 +23,7 @@ export const AuthButton = () => {
             </>
         )
     }
-    const role = user?.unsafeMetadata?.role
+
     return (
         <>
             <SignedIn>
@@ -32,17 +31,9 @@ export const AuthButton = () => {
                     {
                         pathName !== "/candidates" && pathName !== "/companies" ? (
                             <UserButton.MenuItems>
-                                    <UserButton.Link label="My Dashboard" href={role === "CANDIDATE" ? `/candidates` : `/companies`} labelIcon={<Home className="size-4" />} />
-                                    <UserButton.Link label="My Billing Portal" href={role === "CANDIDATE" ? `/candidates/billing` : `/companies/billing`} labelIcon={<Receipt className="size-4" />} />
-                                    <UserButton.Link label={role === "CANDIDATE" ? "My Resumes" : "My Jobs"} href={role === "CANDIDATE" ? `/candidates/resumes` : `/companies/my-jobs`} labelIcon={<ClapperboardIcon className="size-4" />} />
-                                </UserButton.MenuItems>
+                            </UserButton.MenuItems>
                         ) : (
                             <UserButton.MenuItems>
-                                <UserButton.Link label="Home" href="/" labelIcon={<Home className="size-4" />} />
-                                <UserButton.Link label="My Profile" href="/companies/profile" labelIcon={<Home className="size-4" />} />
-                                <UserButton.Link label="Create A Job" href="/companies/create-job" labelIcon={<Receipt className="size-4" />} />
-                                <UserButton.Link label="My Jobs" href="/companies/my-jobs" labelIcon={<Home className="size-4" />} />
-                                <UserButton.Link label="My Billing Portal" href="/companies/billing" labelIcon={<Receipt className="size-4" />} />
                             </UserButton.MenuItems>
                         )
                     }

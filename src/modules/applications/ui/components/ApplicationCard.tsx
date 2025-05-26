@@ -69,8 +69,8 @@ export function JobCard({ job, onApply, onRemoveApplication }: JobCardProps) {
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-xl font-semibold text-gray-900 mb-2">{job.title}</CardTitle>
-              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+              <CardTitle className="text-xl font-semibold light:text-gray-900 mb-2">{job.title}</CardTitle>
+              <div className="flex flex-wrap items-center gap-2 text-sm light:text-gray-600">
                 <div className="flex items-center gap-1">
                   <Building2 className="h-4 w-4" />
                   <span>{job.companyName}</span>
@@ -99,7 +99,7 @@ export function JobCard({ job, onApply, onRemoveApplication }: JobCardProps) {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <p className="text-gray-700 text-sm line-clamp-3">{job.description}</p>
+          <p className="light:text-gray-700 text-sm line-clamp-3">{job.description}</p>
 
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="text-xs">
@@ -128,7 +128,7 @@ export function JobCard({ job, onApply, onRemoveApplication }: JobCardProps) {
               <div className="space-y-2">
                 {job.hardSkills?.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-gray-600 mb-1">Technical Skills:</p>
+                    <p className="light:text-gray-600 text-xs font-medium mb-1">Technical Skills:</p>
                     <div className="flex flex-wrap gap-1">
                       {job.hardSkills.slice(0, 5).map((skill, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
@@ -146,7 +146,7 @@ export function JobCard({ job, onApply, onRemoveApplication }: JobCardProps) {
 
                 {job.softSkills?.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-gray-600 mb-1">Soft Skills:</p>
+                    <p className="light:text-gray-600 text-xs font-medium mb-1">Soft Skills:</p>
                     <div className="flex flex-wrap gap-1">
                       {job.softSkills.slice(0, 3).map((skill, index) => (
                         <Badge key={index} variant="outline" className="text-xs">

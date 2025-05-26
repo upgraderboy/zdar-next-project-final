@@ -198,10 +198,6 @@ export const resumeRouter = createTRPCRouter({
 
   getList: candidateProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
-    if (!userId) throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "Not authenticated"
-    });
 
     // Fetch resumes with their related work experiences and educations
     // console.log("userId: ", userId)

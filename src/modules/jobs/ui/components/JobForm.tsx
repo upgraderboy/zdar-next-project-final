@@ -35,7 +35,7 @@ export default function JobForm({ initialData }: JobFormProps) {
   const router = useRouter();
   const createJob = trpc.job.createJob.useMutation({
     onSuccess: () => {
-      utils.job.invalidate(); // refetch after create
+      utils.job.getAllJobs.invalidate(); // refetch after create
       toast("Job successfully created!");
       router.push("/jobs")
     },

@@ -1,9 +1,10 @@
-import { ApplicationList } from "../ui/components/ApplicationList";
+"use client"
+import ApplicationListSection from "../ui/components/ApplicationList";
 
 export const CandidateApplicationsView = () => {
     return (
-        <>
-            <ApplicationList />
-        </>
+        <div>
+            <ApplicationListSection />
+        </div>
     )
 }

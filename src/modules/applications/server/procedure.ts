@@ -7,12 +7,12 @@ import { z } from "zod";
 import { JobWithApplication } from "../ui/components/types";
 export const applicationRouter = createTRPCRouter({
     getApplicationsByCandidate: candidateProcedure.query(async ({ ctx }) => {
-      const candidateId = ctx.user.id;
+
 
       const applications = await db
         .select()
         .from(jobApplications)
-        .where(eq(jobApplications.candidateId, candidateId))
+        .where(eq(jobApplications.candidateId, ctx.user.id))
         .leftJoin(jobs, eq(jobApplications.jobId, jobs.id))
         .leftJoin(resumes, eq(jobApplications.resumeId, resumes.id));
 

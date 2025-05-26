@@ -47,6 +47,12 @@ const candidateItems = [
         href: "/companies",
         icon: FileIcon,
         auth: true
+    },
+    {
+        title: "Jobs Analytics",
+        href: "/analysis/jobs",
+        icon: FileIcon,
+        auth: true
     }
 ]
 const companyItems = [
@@ -85,6 +91,12 @@ const companyItems = [
     {
         title: "All Companies",
         href: "/companies",
+        icon: FileIcon,
+        auth: true
+    },
+    {
+        title: "Candidate Analytics",
+        href: "/analysis/candidates",
         icon: FileIcon,
         auth: true
     }

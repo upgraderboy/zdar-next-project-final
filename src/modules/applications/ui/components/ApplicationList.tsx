@@ -7,8 +7,22 @@ import type { JobWithApplication } from "./types"
 import { JobCard } from "./ApplicationCard"
 import { trpc } from "@/trpc/client"
 import { toast } from "sonner"
+import { Suspense } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
-export function ApplicationList() {
+
+export default function ApplicationListSection() {
+    return (
+        <>
+            <Suspense fallback={<JobsListSkeleton />}>
+                <ErrorBoundary fallback={<JobsListSkeleton />}>
+                    <ApplicationListSuspense />
+                </ErrorBoundary>
+            </Suspense>
+        </>
+    )
+}
+export function ApplicationListSuspense() {
     //   const queryClient = useQueryClient()
     const [applications] = trpc.applications.getApplicationsByCandidate.useSuspenseQuery();
     const removeApplicationMutation = trpc.applications.removeApplication.useMutation({
@@ -24,104 +38,6 @@ export function ApplicationList() {
         }
     })
     const utils = trpc.useUtils();
-
-    // This would be your tRPC call to get jobs with applications
-    //   const { data: jobs } = useSuspenseQuery({
-    //     queryKey: ["jobs-with-applications"],
-    //     queryFn: async () => {
-    //       // Replace with your actual tRPC call
-    //       // return trpc.job.getJobsWithApplications.query()
-
-    //       // Mock data for demonstration
-    //       return [
-    //         {
-    //           id: "job-1",
-    //           title: "Senior Full Stack Developer",
-    //           description:
-    //             "We are looking for an experienced Full Stack Developer to join our dynamic team. You will be responsible for developing and maintaining web applications using modern technologies like React, Node.js, and TypeScript. The ideal candidate should have strong problem-solving skills and experience with cloud platforms.",
-    //           jobType: "Full-Time" as const,
-    //           experienceLevel: "Senior Level" as const,
-    //           softSkills: ["Communication", "Team Leadership", "Problem Solving"],
-    //           hardSkills: ["React", "Node.js", "TypeScript", "AWS", "PostgreSQL"],
-    //           salaryRange: "₹15 LPA - ₹25 LPA",
-    //           genderPreference: "All" as const,
-    //           isRemote: true,
-    //           stateName: "Karnataka",
-    //           countryName: "India",
-    //           companyName: "TechCorp Solutions",
-    //           ageCategory: ["21-30", "31-40"],
-    //           isDisabilityAllowed: true,
-    //           companyId: "company-1",
-    //           createdAt: new Date("2024-01-15"),
-    //           updatedAt: new Date("2024-01-15"),
-    //           application: {
-    //             id: "app-1",
-    //             jobId: "job-1",
-    //             candidateId: "candidate-1",
-    //             resumeId: "resume-1",
-    //             applicationStatus: "PENDING" as const,
-    //             appliedAt: new Date("2024-01-20"),
-    //           },
-    //           appliedWithResume: {
-    //             id: "resume-1",
-    //             title: "Software Engineer Resume",
-    //             firstName: "John",
-    //             lastName: "Doe",
-    //             jobTitle: "Full Stack Developer",
-    //             summary: "Experienced developer with 5+ years in React and Node.js",
-    //             photoUrl: "/placeholder.svg?height=40&width=40",
-    //             isDefault: true,
-    //             experienceLevel: "Mid Level" as const,
-    //             jobType: "Full-Time" as const,
-    //             skillType: "TECH" as const,
-    //             createdAt: new Date("2024-01-15"),
-    //           },
-    //         },
-    //         {
-    //           id: "job-2",
-    //           title: "Frontend Developer",
-    //           description:
-    //             "Join our frontend team to build beautiful and responsive user interfaces. We work with React, TypeScript, and modern CSS frameworks. You'll collaborate with designers and backend developers to create seamless user experiences.",
-    //           jobType: "Full-Time" as const,
-    //           experienceLevel: "Mid Level" as const,
-    //           softSkills: ["Creativity", "Attention to Detail", "Collaboration"],
-    //           hardSkills: ["React", "TypeScript", "CSS", "Figma", "Jest"],
-    //           salaryRange: "₹8 LPA - ₹15 LPA",
-    //           genderPreference: "All" as const,
-    //           isRemote: false,
-    //           stateName: "Maharashtra",
-    //           countryName: "India",
-    //           companyName: "Design Studio Inc",
-    //           ageCategory: ["21-30", "31-40"],
-    //           isDisabilityAllowed: false,
-    //           companyId: "company-2",
-    //           createdAt: new Date("2024-01-18"),
-    //           updatedAt: new Date("2024-01-18"),
-    //         },
-    //         {
-    //           id: "job-3",
-    //           title: "Backend Developer",
-    //           description:
-    //             "We're seeking a skilled Backend Developer to design and implement robust server-side applications. You'll work with Node.js, databases, and cloud services to build scalable APIs and microservices.",
-    //           jobType: "Full-Time" as const,
-    //           experienceLevel: "Mid Level" as const,
-    //           softSkills: ["Problem Solving", "Analytical Thinking", "Team Collaboration"],
-    //           hardSkills: ["Node.js", "Express", "MongoDB", "Docker", "Kubernetes"],
-    //           salaryRange: "₹10 LPA - ₹18 LPA",
-    //           genderPreference: "All" as const,
-    //           isRemote: true,
-    //           stateName: "Tamil Nadu",
-    //           countryName: "India",
-    //           companyName: "CloudTech Systems",
-    //           ageCategory: ["21-30", "31-40"],
-    //           isDisabilityAllowed: true,
-    //           companyId: "company-3",
-    //           createdAt: new Date("2024-01-20"),
-    //           updatedAt: new Date("2024-01-20"),
-    //         },
-    //       ] as JobWithApplication[]
-    //     },
-    //   })
 
     const handleApply = async (jobId: string, resumeId: string) => {
         try {
