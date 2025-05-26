@@ -87,29 +87,13 @@ export default function CandidateCardSuspense({ candidate }: { candidate: Candid
         contentRef,
         documentTitle: "Resume",
     });
-    //   const openPDFInNewTab = () => {
-    //     const element = contentRef.current;
-    //     if (!element) return;
 
-    //     html2pdf()
-    //       .from(element)
-    //       .set({
-    //         margin: 0,
-    //         filename: `resume-${candidate.id}.pdf`,
-    //         html2canvas: { scale: 2 },
-    //         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    //       })
-    //       .outputPdf("bloburl")
-    //       .then((blobUrl: string) => {
-    //         window.open(blobUrl, "_blank");
-    //       });
-    //   };
     return (
         <Dialog>
             <DialogTrigger className="w-full">
                 <div className="w-full p-4 hover:bg-accent transition-colors cursor-pointer">
                     <Card className="sticky top-8">
-                        <CardHeader className="text-center pb-2">
+                        <CardHeader className="text-center pb-2 relative">
                             {user?.unsafeMetadata.role === "COMPANY" && (
                                 <CandidateAction candidate={candidate} />
                             )}
@@ -186,26 +170,6 @@ export default function CandidateCardSuspense({ candidate }: { candidate: Candid
                                 )}
                             </div>
                             <Separator className="my-4" />
-                            {/* <div className="flex flex-col items-center">
-                                <h3 className="text-lg font-semibold mb-6 text-left">Experience</h3>
-                                <div className="relative">
-                                    <div className="absolute left-[98px] top-[20px] bottom-4 w-[2px] bg-gray-200" />
-                                    <div className="space-y-6">
-                                        {candidate.resumeData?.workExperiences?.map((exp, index) => (
-                                            <div key={index} className="flex gap-4">
-                                                <p className="text-sm text-gray-500">{formatDate(new Date(exp.startDate || new Date())) + " - " + formatDate(new Date(exp.endDate || new Date()))}</p>
-                                                <div className="relative">
-                                                    <div className="w-4 h-4 rounded-full bg-gray-200 mt-1.5" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-medium text-sm">{exp?.position}</p>
-                                                    <p className="text-gray-500 text-sm">{exp?.description}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div> */}
                         </CardContent>
                     </Card>
                 </div>
@@ -214,15 +178,6 @@ export default function CandidateCardSuspense({ candidate }: { candidate: Candid
                 <DialogHeader className="flex-row justify-between items-center sm:flex-row gap-4">
                     <DialogTitle>Resume Preview</DialogTitle>
                     <div className="flex items-center gap-2">
-                        {/* <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={()=>{
-                                openPDFInNewTab()
-                            }}
-                        >
-                            <ExternalLink className="h-4 w-4" />
-                        </Button> */}
                         <Button
                             variant="outline"
                             size="icon"

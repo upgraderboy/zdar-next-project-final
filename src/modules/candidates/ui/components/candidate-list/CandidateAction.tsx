@@ -4,11 +4,14 @@ import { useFavoriteCandidates } from "@/hooks/useFavCandidates";
 export const CandidateAction = ({ candidate }: { candidate: CandidateWithResume }) => {
     const { isFavorite, toggleFavorite } = useFavoriteCandidates()
     return (
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full z-40">
             <Heart
-                className={`w-4 h-4 cursor-pointer ${isFavorite(candidate.id) ? "fill-red-500 text-red-500" : "fill-gray-500 text-gray-500"
+                className={`w-4 h-4 absolute top-2 right-4 cursor-pointer ${isFavorite(candidate.id) ? "fill-red-500 text-red-500" : "fill-gray-500 text-gray-500"
                     }`}
-                onClick={() => toggleFavorite(candidate.id)}
+                onClick={(e) => {
+                    e.stopPropagation(); // <-- Prevents dialog from opening
+                    toggleFavorite(candidate.id);
+                }}
             />
         </div>
     );
