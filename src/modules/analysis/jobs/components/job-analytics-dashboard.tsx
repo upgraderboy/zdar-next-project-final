@@ -14,13 +14,7 @@ import type { JobData, AnalyticsFilters, SummaryStats } from "./job-types"
 
 import { trpc } from "@/trpc/client"
 
-const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D"]
 
 export default function JobAnalyticsDashboard() {
   const [filters, /* unused */] = useState<AnalyticsFilters>({})

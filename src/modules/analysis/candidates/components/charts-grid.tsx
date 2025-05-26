@@ -4,14 +4,6 @@ import { useMemo } from "react"
 import { InteractiveChart } from "./interactive-chart"
 import type { ChartDataPoint, FilterState } from "./types"
 import { ResumeServerData } from "../../../../../types/globals"
-interface AgeCategory {
-  "up to 20": string
-  "21-30": string
-  "31-40": string
-  "41-50": string
-  "51-60": string
-  "60 and up": string
-}
 interface ChartsGridProps {
   data: ResumeServerData[]
   filters: FilterState
@@ -37,23 +29,17 @@ export function ChartsGrid({ data, filters, onFilterChange }: ChartsGridProps) {
         percentage: total > 0 ? (value / total) * 100 : 0,
       }))
     }
-    function getAgeCategoryFromAge(age: number): keyof AgeCategory {
-      if (age <= 20) return "up to 20"
-      if (age <= 30) return "21-30"
-      if (age <= 40) return "31-40"
-      if (age <= 50) return "41-50"
-      if (age <= 60) return "51-60"
-      return "60 and up"
-    }
+
     return {
       gender: createChartData("gender", (item) => item.gender),
       experienceLevel: createChartData("experienceLevel", (item) => item.experienceLevel),
       jobType: createChartData("jobType", (item) => item.jobType),
       disability: createChartData("disability", (item) => item.disability),
       skillType: createChartData("skillType", (item) => item.skillType),
-      ageCategory: createChartData("ageCategory", (item) => getAgeCategoryFromAge(item.age)),
+      ageCategory: createChartData("ageCategory", (item) => item.ageCategory),
     }
   }, [data])
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

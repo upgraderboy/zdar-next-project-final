@@ -9,6 +9,16 @@ import { trpc } from "@/trpc/client"
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ResumeServerData } from "../../../../../types/globals"
+type AgeCategory = "up to 20" | "21-30" | "31-40" | "41-50" | "51-60" | "60 and up"
+function getAgeCategoryFromAge(age: number): AgeCategory {
+  if (age <= 20) return "up to 20"
+  if (age <= 30) return "21-30"
+  if (age <= 40) return "31-40"
+  if (age <= 50) return "41-50"
+  if (age <= 60) return "51-60"
+  return "60 and up"
+}
 export const AnalyticsDashboardSection = () => {
     return (
         <Suspense fallback={<AnalyticsDashboardSkeleton />}>
@@ -31,10 +41,16 @@ export default function AnalyticsDashboardSuspense() {
   const [data] = trpc.analysis.candidateAnalysis.useSuspenseQuery();
   const [filters, setFilters] = useState<FilterState>({})
   const [searchTerm, setSearchTerm] = useState("")
+  const processedData = useMemo(() => {
+    return data.map((item) => ({
+      ...item,
+      ageCategory: getAgeCategoryFromAge(item.age),
+    })) as ResumeServerData[]
+  }, [data])
 
   // Filter data based on current filters and search term
   const filteredData = useMemo(() => {
-    let result = data
+    let result = processedData
 
     // Apply filters
     if (filters.gender?.length) {

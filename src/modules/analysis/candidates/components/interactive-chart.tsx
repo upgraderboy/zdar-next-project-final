@@ -38,6 +38,20 @@ export function InteractiveChart({
     onFilterChange(filterKey, newFilters)
   }
 
+  const getItemColor = (index: number, isSelected: boolean) => {
+    const baseColor = colors[index % colors.length]
+    if (activeFilters.length === 0) {
+      // No filters applied - show all items in full color
+      return baseColor
+    }
+    if (isSelected) {
+      // Item is selected - show in full color
+      return baseColor
+    }
+    // Item is not selected but filters are applied - show dimmed version
+    return baseColor + "40" // Add 40 for 25% opacity
+  }
+
   const renderChart = () => {
     if (chartType === "bar") {
       return (
@@ -48,14 +62,17 @@ export function InteractiveChart({
             <YAxis />
             <Tooltip formatter={(value: number) => [value, "Count"]} labelFormatter={(label: string) => `${label}`} />
             <Bar dataKey="value" onClick={handleClick} cursor="pointer">
-              {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={activeFilters.includes(entry.name) ? colors[index % colors.length] : "#E5E7EB"}
-                  stroke={activeFilters.includes(entry.name) ? "#374151" : "none"}
-                  strokeWidth={activeFilters.includes(entry.name) ? 2 : 0}
-                />
-              ))}
+              {data.map((entry, index) => {
+                const isSelected = activeFilters.includes(entry.name)
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={getItemColor(index, isSelected)}
+                    stroke={isSelected && activeFilters.length > 0 ? "#374151" : "none"}
+                    strokeWidth={isSelected && activeFilters.length > 0 ? 2 : 0}
+                  />
+                )
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -66,14 +83,17 @@ export function InteractiveChart({
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie data={data} cx="50%" cy="50%" outerRadius={80} dataKey="value" onClick={handleClick} cursor="pointer">
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={activeFilters.includes(entry.name) ? colors[index % colors.length] : "#E5E7EB"}
-                stroke={activeFilters.includes(entry.name) ? "#374151" : "none"}
-                strokeWidth={activeFilters.includes(entry.name) ? 3 : 0}
-              />
-            ))}
+            {data.map((entry, index) => {
+              const isSelected = activeFilters.includes(entry.name)
+              return (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={getItemColor(index, isSelected)}
+                  stroke={isSelected && activeFilters.length > 0 ? "#374151" : "none"}
+                  strokeWidth={isSelected && activeFilters.length > 0 ? 3 : 0}
+                />
+              )
+            })}
           </Pie>
           <Tooltip
             formatter={(value: number, name: string, item) => {
@@ -94,25 +114,32 @@ export function InteractiveChart({
       <CardContent>
         {renderChart()}
         <div className="mt-4 flex flex-wrap gap-2">
-          {data.map((entry, index) => (
-            <div
-              key={entry.name}
-              className={`flex items-center gap-2 px-2 py-1 rounded text-sm cursor-pointer transition-colors ${
-                activeFilters.includes(entry.name) ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
-              }`}
-              onClick={() => handleClick(entry)}
-            >
+          {data.map((entry, index) => {
+            const isSelected = activeFilters.includes(entry.name)
+            const showAsActive = activeFilters.length === 0 || isSelected
+            return (
               <div
-                className="w-3 h-3 rounded-full"
-                style={{
-                  backgroundColor: activeFilters.includes(entry.name) ? colors[index % colors.length] : "#9CA3AF",
-                }}
-              />
-              <span>
-                {entry.name} ({entry.value})
-              </span>
-            </div>
-          ))}
+                key={entry.name}
+                className={`flex items-center gap-2 px-2 py-1 rounded text-sm cursor-pointer transition-all duration-200 ${
+                  showAsActive
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+                onClick={() => handleClick(entry)}
+              >
+                <div
+                  className="w-3 h-3 rounded-full transition-all duration-200"
+                  style={{
+                    backgroundColor: getItemColor(index, isSelected),
+                    border: showAsActive ? "1px solid rgba(255,255,255,0.3)" : "none",
+                  }}
+                />
+                <span className={showAsActive ? "font-medium" : ""}>
+                  {entry.name} ({entry.value})
+                </span>
+              </div>
+            )
+          })}
         </div>
       </CardContent>
     </Card>

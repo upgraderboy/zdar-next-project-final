@@ -22,6 +22,7 @@ export default function useAutoSaveResume(resumeData: ResumeValues) {
           setResumeId(updatedResume?.id);
           setLastSavedData(debouncedResumeData);
           utils.resume.getOne.invalidate({ id: updatedResume?.id });
+          utils.candidates.getDefaultResume.invalidate();
           utils.resume.getList.invalidate();
           if (searchParams.get("resumeId") !== updatedResume?.id) {
             const newSearchParams = new URLSearchParams(searchParams);

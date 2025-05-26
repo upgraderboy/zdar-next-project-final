@@ -4,21 +4,22 @@ import { ResponsiveModal } from "@/components/responsive-modal";
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 
-interface ImageUploadModalProps{
+interface ImageUploadModalProps {
     id: string;
     open: boolean;
-    onOpenChange: (open: boolean)=> void;
+    onOpenChange: (open: boolean) => void;
 }
 
 
 
 export const ImageUploadModal = ({ id, open, onOpenChange }: ImageUploadModalProps) => {
     const utils = trpc.useUtils();
-    const onUploadComplete = () => {
-        utils.resume.getOne.invalidate({ id: id! });
-        utils.candidates.getDefaultResume.invalidate();
-        utils.companies.getProfile.invalidate();
-        utils.resume.getList.invalidate();
+    const onUploadComplete = async () => {
+        await utils.candidates.getDefaultResume.invalidate();
+        await utils.resume.getOne.invalidate({ id });
+        await utils.candidates.getProfile.invalidate();
+        await utils.companies.getProfile.invalidate();
+        await utils.resume.getList.invalidate();
         onOpenChange(false);
     }
     // console.log(id, open, onOpenChange)
