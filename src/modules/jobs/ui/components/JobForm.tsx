@@ -127,7 +127,7 @@ export default function JobForm({ initialData }: JobFormProps) {
                   <SelectContent>
                     <SelectItem value="Full-Time">Full Time</SelectItem>
                     <SelectItem value="Part-Time">Part Time</SelectItem>
-                    <SelectItem value="Contract">Contract</SelectItem>
+                    <SelectItem value="Internship">Internship</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

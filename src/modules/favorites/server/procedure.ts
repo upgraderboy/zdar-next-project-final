@@ -21,13 +21,12 @@ export const favoritesRouter = createTRPCRouter({
     const { id } = ctx.user;
 
     const favorites = await db
-      .select({ candidateId: jobFavorites.candidateId })
-      .from(jobFavorites)
-      .innerJoin(jobs, eq(jobFavorites.jobId, jobs.id))
+      .select({ candidateId: favoriteCandidates.candidateId })
+      .from(favoriteCandidates)
+      .innerJoin(candidates, eq(favoriteCandidates.candidateId, candidates.id))
       .where(
         and(
-          eq(jobFavorites.candidateId, id),
-          eq(jobs.isPublished, true)
+          eq(favoriteCandidates.companyId, id),
         )
       );
 
@@ -97,14 +96,13 @@ export const favoritesRouter = createTRPCRouter({
       // Step 1: Get all favorite entries where company's jobs were favorited by candidates
       const favoriteEntries = await db
         .select({
-          candidateId: jobFavorites.candidateId,
+          candidateId: favoriteCandidates.candidateId,
         })
-        .from(jobFavorites)
-        .innerJoin(jobs, eq(jobFavorites.jobId, jobs.id))
-        .where(eq(jobs.companyId, companyId));
+        .from(favoriteCandidates)
+        .innerJoin(candidates, eq(favoriteCandidates.candidateId, candidates.id))
+        .where(eq(favoriteCandidates.companyId, companyId));
 
       const candidateIds = favoriteEntries.map((entry) => entry.candidateId);
-
       if (!candidateIds.length) return [];
 
       // Step 2: Prepare sort logic

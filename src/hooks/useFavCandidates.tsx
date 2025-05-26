@@ -8,6 +8,7 @@ export function useFavoriteCandidates() {
   const toggleMutation = trpc.favorites.toggleFavoriteCandidate.useMutation({
     onSuccess(data, variables) {
       utils.favorites.getFavoriteCandidateIds.invalidate();
+      utils.favorites.getFavoriteCandidates.invalidate();
       setLocalFavorites((prev) => {
         const newSet = new Set(prev)
         if (data.isFavorite) {
@@ -20,6 +21,8 @@ export function useFavoriteCandidates() {
     },
   })
 
+  console.log("favoriteIds", favoriteIds)
+  console.log("localFavorites", localFavorites)
   const isFavorite = (candidateId: string) =>
     localFavorites.has(candidateId) || favoriteIds?.includes(candidateId)
 

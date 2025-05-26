@@ -7,22 +7,62 @@ import { CandidateCard } from "@/modules/candidates/ui/components/candidate-list
 import { trpc } from "@/trpc/client";
 import { Search } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { useDebounce } from "use-debounce"; // 👈 install this
 
 export default function FavoriteCandidatesView() {
+
+
+    return (
+
+        <Suspense fallback={<FavoriteCandidateSkeleton />}>
+            <ErrorBoundary fallback={<div>Something went wrong</div>}>
+                <FavoriteCandidates />
+            </ErrorBoundary>
+        </Suspense>
+    );
+}
+
+
+export function FavoriteCandidateSkeleton() {
+    return (
+        <div>
+            <Skeleton className="h-8 w-48" />
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="space-y-4 p-6 border rounded-lg">
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-20 w-full" />
+                        <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-6 w-24" />
+                        </div>
+                        <div className="flex gap-2">
+                            <Skeleton className="h-10 flex-1" />
+                            <Skeleton className="h-10 w-32" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function FavoriteCandidates() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch] = useDebounce(searchQuery, 400); // ⏳ delay query
 
     const [sortBy, setSortBy] = useState<"name" | "createdAt">("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    const [data, isLoading] = trpc.favorites.getFavoriteCandidates.useSuspenseQuery({
+    const [data] = trpc.favorites.getFavoriteCandidates.useSuspenseQuery({
         search: debouncedSearch,
         sortBy,
         sortOrder,
     });
-
     return (
         <div className="">
             {/* 🔍 Search and Sort Controls */}
@@ -72,37 +112,11 @@ export default function FavoriteCandidatesView() {
                     </select>
                 </div>
             </div>
-
-            {/* 📋 Candidate Cards */}
-            {isLoading ? (
-                <div>
-                    <Skeleton className="h-8 w-48" />
-                    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="space-y-4 p-6 border rounded-lg">
-                                <Skeleton className="h-6 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                                <Skeleton className="h-20 w-full" />
-                                <div className="flex gap-2">
-                                    <Skeleton className="h-6 w-16" />
-                                    <Skeleton className="h-6 w-20" />
-                                    <Skeleton className="h-6 w-24" />
-                                </div>
-                                <div className="flex gap-2">
-                                    <Skeleton className="h-10 flex-1" />
-                                    <Skeleton className="h-10 w-32" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : (
-                <div className="w-full container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {data?.map((candidate) => (
-                        <CandidateCard key={candidate.id} candidate={candidate} />
-                    ))}
-                </div>
-            )}
+            <div className="w-full container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {data?.map((candidate) => (
+                    <CandidateCard key={candidate.id} candidate={candidate} />
+                ))}
+            </div>
         </div>
     );
 }

@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 import { useFavoriteCandidates } from "@/hooks/useFavCandidates";
 export const CandidateAction = ({ candidate }: { candidate: CandidateWithResume }) => {
     const { isFavorite, toggleFavorite } = useFavoriteCandidates()
+    console.log(isFavorite(candidate.id))
     return (
         <div className="w-full z-40">
             <Heart
