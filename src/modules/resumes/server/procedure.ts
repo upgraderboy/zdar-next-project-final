@@ -67,7 +67,7 @@ export const resumeRouter = createTRPCRouter({
   }),
   save: candidateProcedure.input(resumeSchema).mutation(async ({ ctx, input }) => {
     const { id, workExperiences: works, educations: edus, ...resumeValues } = input;
-    // console.log("id: ", id)
+    console.log("photo: ", input.photoUrl);
     const userId = ctx.user.id;
     // console.log("userId: ", input)
     if (!userId) throw new TRPCError({

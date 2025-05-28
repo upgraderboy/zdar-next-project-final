@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
@@ -12,17 +11,14 @@ import { Input } from "@/components/ui/input";
 
 import { personalInfoSchema, PersonalInfoValues } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { EditorFormProps } from "../../../../types/globals";
-import Image from "next/image";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ImagePlusIcon, MoreVerticalIcon } from "lucide-react";
-import { ImageUploadModal } from "@/components/image-upload-modal";
 import { LocationPicker } from "./LocationPicker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
+import ImageUpload from "@/components/image-upload";
 
 export default function PersonalInfoForm({
     resumeData,
@@ -31,6 +27,7 @@ export default function PersonalInfoForm({
     const form = useForm<PersonalInfoValues>({
         resolver: zodResolver(personalInfoSchema),
         defaultValues: {
+            photoUrl: resumeData.photoUrl || "",
             firstName: resumeData.firstName || "",
             lastName: resumeData.lastName || "",
             jobTitle: resumeData.jobTitle || "",
@@ -50,7 +47,6 @@ export default function PersonalInfoForm({
         },
     });
     console.log(form.getValues())
-    const [thumbnailModalOpen, setThumbnailModalOpen] = useState(false);
     useEffect(() => {
         const subscription = form.watch((values) => {
             setResumeData((prev) => {
@@ -64,14 +60,6 @@ export default function PersonalInfoForm({
         return () => subscription.unsubscribe?.();
     }, [form, setResumeData]);
 
-    useEffect(() => {
-        if (thumbnailModalOpen) {
-            document.body.style.pointerEvents = "none"; // Prevent clicks
-        }
-        return () => {
-            document.body.style.pointerEvents = "auto"; // Always reset when modal closes
-        };
-    }, [thumbnailModalOpen]);
 
     return (
         <div className="mx-auto max-w-xl space-y-6">
@@ -79,38 +67,33 @@ export default function PersonalInfoForm({
                 <h2 className="text-2xl font-semibold">Personal info</h2>
                 <p className="text-sm text-muted-foreground">Tell us about yourself.</p>
             </div>
-            <ImageUploadModal id={resumeData.id!} open={thumbnailModalOpen} onOpenChange={setThumbnailModalOpen} />
+
             <Form {...form}>
                 <form className="space-y-3">
 
-                    <div className="p-0.5 border border-dashed border-neutral-400 relative h-[153px] w-[153px] group">
-                        {
-                            resumeData.photo ? (
-                                <Image src={resumeData.photo} fill unoptimized alt="Thumbnail" className="object-cover" />
-                            ) : (
-                                <div className="flex items-center justify-center h-full w-full">
-                                    <Image src="/logo.png" width={100} height={100} alt="Thumbnail" />
-                                </div>
-                            )
-                        }
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    type="button"
-                                    size="icon"
-                                    className="bg-black/50 hover:bg-black/50 absolute top-1 right-1 rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 duration-300 size-7"
-                                    onClick={() => setThumbnailModalOpen(true)}
-                                >
-                                    <MoreVerticalIcon className="text-white size-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => setThumbnailModalOpen(true)}>
-                                    <ImagePlusIcon className="size-4 mr-1" /> Change
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                <FormField control={form.control} name="photoUrl" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Photo</FormLabel>
+                                <ImageUpload value={field.value ? [field.value] : []} onChange={(url) => {
+                                    setResumeData((prev) => {
+                                        return {
+                                            ...prev,
+                                            photoUrl: url,
+                                        }
+                                    });
+                                    field.onChange(url);
+                                }} onRemove={() => {
+                                    setResumeData((prev) => {
+                                        return {
+                                            ...prev,
+                                            photoUrl: '',
+                                        }
+                                    });
+                                    field.onChange('');
+                                }} />
+                                <FormMessage />
+                            </FormItem>
+                        )} />
                     <div className="grid grid-cols-2 gap-3">
                         <FormField
                             control={form.control}
@@ -208,9 +191,9 @@ export default function PersonalInfoForm({
                                         apiKey={process.env.GOOGLE_MAPS_API_KEY! || "AIzaSyCRh0XosbCfHfG6-VJMpnbfE7gy2VYE91o"}
                                         value={
                                             latField.value != null && lngField.value != null &&
-  !isNaN(Number(latField.value)) && !isNaN(Number(lngField.value))
-    ? { lat: Number(latField.value), lng: Number(lngField.value) }
-    : undefined
+                                                !isNaN(Number(latField.value)) && !isNaN(Number(lngField.value))
+                                                ? { lat: Number(latField.value), lng: Number(lngField.value) }
+                                                : undefined
                                         }
                                         defaultValue={resumeData.lat && resumeData.lng ? { lat: resumeData.lat, lng: resumeData.lng } : undefined}
                                         onValueChange={(value) => {

@@ -51,9 +51,9 @@ export default function useAutoSaveResume(resumeData: ResumeValues) {
   
           saveResumeMutation.mutate({
             ...newData,
-            ...(JSON.stringify(lastSavedData.photo, fileReplacer) ===
-              JSON.stringify(newData.photo, fileReplacer) && {
-              photo: undefined,
+            ...(JSON.stringify(lastSavedData.photoUrl, fileReplacer) ===
+              JSON.stringify(newData.photoUrl, fileReplacer) && {
+              photoUrl: newData.photoUrl,
               lat: Number(newData.lat),
               lng: Number(newData.lng)
             }),

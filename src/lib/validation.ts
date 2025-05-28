@@ -16,6 +16,7 @@ export const disabilityEnum = z.enum(["Yes", "No"]);
 export const skillTypeEnum = z.enum(["TECH", "NON-TECH"]);
 
 export const personalInfoSchema = z.object({
+  photoUrl: z.string().optional(),
   firstName: optionalString,
   lastName: optionalString,
   jobTitle: optionalString,
@@ -100,9 +101,9 @@ export const resumeSchema = z.object({
   disability: z.enum(["Yes", "No"]).optional(),
 });
 
-export type ResumeValues = Omit<z.infer<typeof resumeSchema>, "photo"> & {
+export type ResumeValues = Omit<z.infer<typeof resumeSchema>, "photoUrl"> & {
   id?: string;
-  photo?: string | null;
+  photoUrl?: string | undefined;
 };
 
 export const generateWorkExperienceSchema = z.object({

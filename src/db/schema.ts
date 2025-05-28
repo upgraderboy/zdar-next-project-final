@@ -3,7 +3,6 @@ import { pgTable, text, uuid, timestamp, pgEnum, primaryKey, varchar, boolean, i
 import { createInsertSchema, createUpdateSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const subscriptionPlanEnum = pgEnum("subscription_plan", ["FREE", "Starter", "Enterprise"]);
 export const subscriptionPeriodEnum = pgEnum("subscription_period", ["MONTHLY", "YEARLY"]);
 export const disabilityEnum = pgEnum("disability", ["Yes", "No"]);
 export const genderEnum = pgEnum("gender", ["Male", "Female", "Other"]);
@@ -38,8 +37,7 @@ export const resumes = pgTable("resumes", {
     title: text("title"),
     description: text("description"),
     photoUrl: text("photo_url"),
-    logoKey: text("logo_key"),
-    logoUrl: text("logo_url"),
+
     colorHex: varchar("color_hex", { length: 7 }).default("#000000"),
     borderStyle: text("border_style").default("squircle"),
     summary: text("summary"),
@@ -95,7 +93,6 @@ export const companies = pgTable("companies", {
     id: uuid("id").primaryKey().defaultRandom(),
     clerkId: varchar("clerk_id", { length: 255 }).unique().notNull(),
     name: varchar("name", { length: 255 }),
-    logoKey: text("logo_key"),
     logoUrl: text("logo_url"),
     isVerified: boolean("is_verified").default(false),
     email: varchar("email", { length: 255 }).notNull(),
@@ -114,8 +111,8 @@ export const companies = pgTable("companies", {
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     customerId: varchar("customer_id", { length: 256 }),
-    plan: subscriptionPlanEnum("plan").default("FREE"),
-});
+    plan: subscriptionPeriodEnum("plan").default("MONTHLY"),
+    });
 
 // export const candidateRelations = relations(candidates, ({ one, many }) => ({
 //     resumes: one(resumes, {
@@ -230,7 +227,6 @@ export const jobApplications = pgTable("job_applications", {
 export const companySubscription = pgTable("company_subscription", {
     id: uuid("id").defaultRandom().primaryKey(),
     companyId: uuid("company_id").references(() => companies.id, { onDelete: "cascade" }).notNull(),
-    plan: subscriptionPlanEnum("plan").default("FREE"),
     period: subscriptionPeriodEnum("period").default("MONTHLY"),
     startDate: timestamp("start_date", { withTimezone: true }).defaultNow().notNull(),
     endDate: timestamp("end_date", { withTimezone: true }).notNull(),

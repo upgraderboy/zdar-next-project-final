@@ -54,8 +54,9 @@ interface ResumeSectionProps {
 }
 
 function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
+  console.log("resumeData photo", resumeData);
   const {
-    photo,
+    photoUrl,
     firstName,
     lastName,
     jobTitle,
@@ -67,11 +68,15 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
     borderStyle,
   } = resumeData;
 
-  const [photoSrc, setPhotoSrc] = useState(photo ?? "");
-  // console.log(photoSrc);
+  const [photoSrc, setPhotoSrc] = useState(photoUrl ?? "");
+  console.log("photoSrc", photoSrc, photoUrl, resumeData);
   useEffect(() => {
-    if (photo === null) setPhotoSrc(THUMBNAIL_FALLBACK);
-  }, [photo]);
+    if (!photoUrl) {
+      setPhotoSrc(THUMBNAIL_FALLBACK);
+    } else {
+      setPhotoSrc(photoUrl);
+    }
+  }, [photoUrl]);
   const isPrintMode = typeof window !== "undefined" && window.matchMedia("print").matches;
   return (
     <div className="flex items-center gap-6">

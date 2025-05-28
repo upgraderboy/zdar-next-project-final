@@ -1,7 +1,7 @@
 "use client"
 import {
     useMemo,
-    useState
+
 } from "react"
 import {
     toast
@@ -26,10 +26,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import {
-    ImagePlusIcon,
-    MoreVerticalIcon
-} from "lucide-react"
+
 
 import {
     Input
@@ -47,22 +44,22 @@ import {
     Textarea
 } from "@/components/ui/textarea"
 import { trpc } from "@/trpc/client"
-import { ImageUploadModal } from "@/components/image-upload-modal"
-import Image from "next/image"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { companySchema } from "@/db/schema"
 import { LocationPicker } from "@/modules/resumes/ui/LocationPicker"
 import Link from "next/link"
+import ImageUpload from "@/components/image-upload"
 
 
 interface FormSectionProps {
     profile: z.infer<typeof companySchema> | undefined;
     isPending: boolean;
 }
+import { useRouter } from "next/navigation";
 export default function ProfileForm({ profile, isPending }: FormSectionProps) {
-    const [thumbnailModalOpen, setThumbnailModalOpen] = useState(false);
+    const router = useRouter();
     const { mutate } = trpc.companies.updateProfile.useMutation({
         onSuccess: () => {
+            router.refresh();
             toast("Profile Updated!")
         },
         onError: () => {
@@ -71,44 +68,6 @@ export default function ProfileForm({ profile, isPending }: FormSectionProps) {
     });
 
 
-    // const languages = [{
-    //     label: "English",
-    //     value: "en"
-    // },
-    // {
-    //     label: "French",
-    //     value: "fr"
-    // },
-    // {
-    //     label: "German",
-    //     value: "de"
-    // },
-    // {
-    //     label: "Spanish",
-    //     value: "es"
-    // },
-    // {
-    //     label: "Portuguese",
-    //     value: "pt"
-    // },
-    // {
-    //     label: "Russian",
-    //     value: "ru"
-    // },
-    // {
-    //     label: "Japanese",
-    //     value: "ja"
-    // },
-    // {
-    //     label: "Korean",
-    //     value: "ko"
-    // },
-    // {
-    //     label: "Chinese",
-    //     value: "zh"
-    // },
-    // ] as
-    //     const;
 
     // Transform profile data to match companySchema
     const defaultValues = useMemo(() => {
@@ -125,8 +84,8 @@ export default function ProfileForm({ profile, isPending }: FormSectionProps) {
                 countryName: "",
                 stateName: "",
                 logoUrl: "", // Ensure logoUrl is included
-                lat: undefined,
-                lng: undefined,
+                lat: 0,
+                lng: 0,
             };
         }
 
@@ -142,8 +101,8 @@ export default function ProfileForm({ profile, isPending }: FormSectionProps) {
             countryName: profile.countryName ?? "",
             stateName: profile.stateName ?? "",
             logoUrl: profile.logoUrl ?? null, // Handle logoUrl
-            lat: profile.lat ?? undefined,
-            lng: profile.lng ?? undefined,
+            lat: profile.lat ?? 0,
+            lng: profile.lng ?? 0,
         };
     }, [profile]);
     const form = useForm<z.infer<typeof companySchema>>({
@@ -154,31 +113,14 @@ export default function ProfileForm({ profile, isPending }: FormSectionProps) {
 
     return (
         <Form {...form}>
-            {profile && <ImageUploadModal open={thumbnailModalOpen} onOpenChange={setThumbnailModalOpen} id={profile.id!} />}
             <form onSubmit={form.handleSubmit((values) => mutate(values))} className="space-y-8 max-w-3xl mx-auto py-10">
-                <div className="p-0.5 border border-dashed border-neutral-400 relative h-[153px] w-[153px] group">
-                    {
-                        profile?.logoUrl ? (
-                            <Image src={profile?.logoUrl} fill unoptimized alt="Thumbnail" className="object-cover" />
-                        ) : (
-                            <div className="flex items-center justify-center h-full w-full">
-                                <Image src="/logo.png" width={100} height={100} alt="Thumbnail" />
-                            </div>
-                        )
-                    }
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button type="button" size="icon" className="bg-black/50 hover:bg-black/50 absolute top-1 right-1 rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 duration-300 size-7">
-                                <MoreVerticalIcon className="text-white size-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => setThumbnailModalOpen(true)}>
-                                <ImagePlusIcon className="size-4 mr-1" /> Change
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+            <FormField control={form.control} name="logoUrl" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Logo</FormLabel>
+                                <ImageUpload value={field.value ? [field.value] : []} onChange={(url) => field.onChange(url)} onRemove={() => field.onChange('')} />
+                                <FormMessage />
+                            </FormItem>
+                        )} />
 
                 <div className="grid grid-cols-12 gap-4">
 
@@ -266,68 +208,6 @@ export default function ProfileForm({ profile, isPending }: FormSectionProps) {
                                     <FormMessage />
                                 </FormItem>
                             )} />
-                {/* <FormField
-                    control={form.control}
-                    name="sectorName"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Company&apos;s Sector</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className={cn(
-                                                "w-[200px] justify-between",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-
-                                        >
-                                            {field.value
-                                                ? languages.find(
-                                                    (language) => language.value === field.value
-                                                )?.label
-                                                : "Select language"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[200px] p-0">
-                                    <Command>
-                                        <CommandInput placeholder="Search language..." />
-                                        <CommandList>
-                                            <CommandEmpty>No language found.</CommandEmpty>
-                                            <CommandGroup>
-                                                {languages.map((language) => (
-                                                    <CommandItem
-                                                        value={language.label}
-                                                        key={language.value}
-                                                        onSelect={() => {
-                                                            form.setValue("sectorName", language.value);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                                "mr-2 h-4 w-4",
-                                                                language.value === field.value
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {language.label}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <FormDescription>Enter Your Company&apos;s Sector</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                /> */}
 
                 <FormField
                     control={form.control}

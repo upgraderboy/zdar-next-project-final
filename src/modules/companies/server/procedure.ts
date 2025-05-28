@@ -3,6 +3,7 @@ import { companyProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/i
 import { db } from "@/db";
 import { candidates, companies, companySchema, favoriteCandidates } from "@/db/schema";
 import { clerkClient } from "@clerk/nextjs/server";
+import stripe from "@/lib/stripe";
 import { and, eq, ilike, asc, desc } from "drizzle-orm";
 export const companyRouter = createTRPCRouter({
   getAllCompanies: protectedProcedure.input(
@@ -110,5 +111,17 @@ export const companyRouter = createTRPCRouter({
       .where(eq(favoriteCandidates.companyId, companyId));
 
     return favorites.map((item) => item.candidate);
+  }),
+  getBillingPortalUrl: companyProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    const [company] = await db.select().from(companies).where(eq(companies.id, user.id));
+    if (!company || !company.customerId) {
+      return null;
+    }
+    const session = await stripe.billingPortal.sessions.create({
+      customer: company.customerId,
+      return_url: process.env.NEXT_PUBLIC_BASE_URL,
+    });
+    return session.url;
   })
-})
+});

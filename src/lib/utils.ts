@@ -33,7 +33,7 @@ export function mapToResumeValues(data: ResumeServerData): ResumeValues {
     id: data.id,
     title: data.title || undefined,
     description: data.description || undefined,
-    photo: data.photoUrl || undefined,
+    photoUrl: data.photoUrl || undefined,
     firstName: data.firstName || undefined,
     lastName: data.lastName || undefined,
     jobTitle: data.jobTitle || undefined,
@@ -82,7 +82,7 @@ export function sanitizeResume(resume: ResumeServerData): ResumeValues {
   return {
     ...resume,
     email: resume.email ?? undefined,
-    photo: resume.photoUrl ?? undefined,
+    photoUrl: resume.photoUrl ?? undefined,
     workExperiences: resume.workExperiences.map((exp) => ({
       position: exp.position ?? undefined,
       company: exp.company ?? undefined,

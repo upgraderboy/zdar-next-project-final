@@ -7,7 +7,7 @@ export function ApproachSection() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-[#ff4500]">Our Approach</h2>
-            <p className="text-gray-700 leading-relaxed">
+            <p className="light:text-gray-700 dark:text-gray-400 leading-relaxed">
               Our approach is rooted in collaboration, both with companies and media outlets, to spread our vision of a
               more streamlined, data-driven approach to recruitment. We work closely with industry leaders, HR
               professionals, and tech innovators to continuously evolve and adapt to the changing employment landscape.

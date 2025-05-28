@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs'
+// import { trpc } from '@/trpc/client';
 const plans = [
   {
     name: "Free",
@@ -38,9 +39,10 @@ const plans = [
     features: ["Unlimited users", "Unlimited projects", "100GB storage", "24/7 support", "Custom integrations", "Advanced security"],
     notAllowed: ["1 user", "5 projects", "2GB storage", "Basic support"]
   },
-]
+];
 
 export default function PricingTable() {
+  // const { data: url } = trpc.companies.getBillingPortalUrl.useQuery();
   const { user } = useUser();
   return (
     <div className="container mx-auto py-10">

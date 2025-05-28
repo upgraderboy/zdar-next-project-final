@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { companies, companySubscription } from "@/db/schema";
 import stripe from "@/lib/stripe";
+import { clerkClient } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -76,20 +77,30 @@ export async function POST(req: Request) {
                         } else {
                             return new NextResponse("Invalid Price ID", { status: 400 });
                         }
-
+                        const plan = priceId === process.env.STRIPE_YEARLY_PRICE_ID ? "YEARLY" : "MONTHLY";
                         // Insert subscription record
                         await db.insert(companySubscription).values({
                             companyId: company.id,
                             startDate: now,
                             endDate,
                             subscriptionStatus: "ACTIVE",
-                            plan: "Enterprise",
-                            period: priceId === process.env.STRIPE_YEARLY_PRICE_ID ? "YEARLY" : "MONTHLY",
+                            period: plan,
+                        });
+
+                        // Update Clerk metadata
+                        const client = await clerkClient();
+                        await client.users.updateUser(company.clerkId, {
+                            publicMetadata: {
+                                isSubscribed: true,
+                                plan: "YEARLY",
+                                role: "COMPANY",
+                                onboardingComplete: true,
+                            },
                         });
 
                         // Update company record
                         await db.update(companies).set({
-                            plan: "Enterprise",
+                            plan: "MONTHLY",
                         }).where(eq(companies.id, company.id));
                     }
                 }
@@ -122,9 +133,17 @@ export async function POST(req: Request) {
                 // Optionally downgrade company to FREE plan
                 await db
                   .update(companies)
-                  .set({ plan: "FREE" })
+                  .set({ plan: null })
                   .where(eq(companies.id, company.id));
-        
+                  const client = await clerkClient();
+                  await client.users.updateUser(company.clerkId, {
+                      publicMetadata: {
+                          isSubscribed: false,
+                          plan: null,
+                          role: "COMPANY",
+                          onboardingComplete: true,
+                      },
+                  });
                 break;
               }
             default:
