@@ -1,5 +1,5 @@
 import { ResumeSection } from "@/modules/candidates/ui/sections/ResumeSection";
-import ProfileSection from "../sections/profile-section";
+import ProfileSection from "../ui/sections/profile-section";
 
 export function CandidateProfileView() {
     return <div>

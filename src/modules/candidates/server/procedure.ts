@@ -22,230 +22,230 @@ export type CandidateWithResume = CandidateType & {
 };
 export const candidatesRouter = createTRPCRouter({
   onboarding: candidateProcedure.input(resumeSchema).mutation(async ({ ctx, input }) => {
-      const { id, workExperiences: works, educations: edus, ...resumeValues } = input;
+    const { id, workExperiences: works, educations: edus, ...resumeValues } = input;
 
-      const userId = ctx.user.id;
-      // console.log("userId: ", input)
-      if (!userId) throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Not authenticated"
-      });
-      // ✅ Replace db.query.resumes.findMany
-      if (!id) {
-        const resumeCount = await db
-          .select()
-          .from(resumes)
-          .where(eq(resumes.userId, userId));
-        console.log("resumeCount: ", resumeCount)
-        // Uncomment for permissions
-        // if (!canCreateResume(subscriptionLevel, resumeCount.length)) {
-        //   throw new Error("Maximum resume count reached");
-        // }
-      }
-      await db.update(candidates).set({
-        defaultResumeId: id
-      }).where(eq(candidates.id, ctx.user.id));
-      // ✅ Replace db.query.resumes.findFirst
-      const existingResume = id
-        ? await db
-          .select()
-          .from(resumes)
-          .where(and(eq(resumes.id, id), eq(resumes.userId, userId)))
-          .limit(1)
-          .then((res) => res[0] || null)
-        : null;
-  
-      if (!id && !existingResume) throw new Error("Resume not found");
-  
-  
-      const resumeData = {
-        ...resumeValues,
-        lat: Number(resumeValues.lat),
-        lng: Number(resumeValues.lng),
-        updatedAt: new Date(),
-      };
-      // console.log(id, existingResume)
-      if (id) {
-        // 🔁 Update Resume
-        await db.update(resumes).set(resumeData).where(eq(resumes.id, id));
-  
-        // 🔁 Delete related
-        await db.delete(workExperiences).where(eq(workExperiences.resumeId, id));
-        await db.delete(educations).where(eq(educations.resumeId, id));
-  
-        // 🔁 Re-insert related
-        if (works?.length) {
-          // console.log(works)
-          await db.insert(workExperiences).values(
-            works.map((exp) => ({
-              ...exp,
-              resumeId: id,
-              startDate: exp.startDate ? new Date(exp.startDate) : undefined,
-              endDate: exp.endDate ? new Date(exp.endDate) : undefined,
-            }))
-          );
-        }
-  
-        if (edus?.length) {
-          await db.insert(educations).values(
-            edus.map((edu) => ({
-              ...edu,
-              resumeId: id,
-              startDate: edu.startDate ? new Date(edu.startDate) : undefined,
-              endDate: edu.endDate ? new Date(edu.endDate) : undefined,
-            }))
-          );
-        }
-        const [resume] = await db.select().from(resumes).where(eq(resumes.id, id))
-        const experiences = await db.select().from(workExperiences).where(eq(workExperiences.resumeId, id))
-        const studies = await db.select().from(educations).where(eq(educations.resumeId, id))
-        const resumeComplete = isResumeComplete({
-          ...resume,
-          workExperiences: experiences,
-          educations: studies
-        } as ResumeServerData);
-        console.log("resumeComplete: ", resumeComplete)
-        if(resumeComplete && ctx.clerkUserId){
-          const client = await clerkClient()
-          await client.users.updateUser(ctx.clerkUserId, {
-            publicMetadata: {
-              onboardingComplete: true,
-              role: "CANDIDATE"
-            },
-          })
-        }
-        return { updatedResume: existingResume };
-      } else {
-        // 🔁 Insert new resume
-        const [newResume] = await db
-          .insert(resumes)
-          .values({
-            ...resumeData,
-            userId,
-            createdAt: new Date(),
-          })
-          .returning();
-  
-        if (!newResume?.id) throw new Error("Failed to create resume");
-  
-        const resumeId = newResume.id;
-  
-        if (works?.length) {
-          await db.insert(workExperiences).values(
-            works.map((exp) => ({
-              ...exp,
-              resumeId,
-              startDate: exp.startDate ? new Date(exp.startDate) : undefined,
-              endDate: exp.endDate ? new Date(exp.endDate) : undefined,
-            }))
-          );
-        }
-  
-        if (edus?.length) {
-          await db.insert(educations).values(
-            edus.map((edu) => ({
-              ...edu,
-              resumeId,
-              startDate: edu.startDate ? new Date(edu.startDate) : undefined,
-              endDate: edu.endDate ? new Date(edu.endDate) : undefined,
-            }))
-          );
-        }
-        const [resume] = await db.select().from(resumes).where(eq(resumes.id, resumeId))
-        const experiences = await db.select().from(workExperiences).where(eq(workExperiences.resumeId, resumeId))
-        const studies = await db.select().from(educations).where(eq(educations.resumeId, resumeId))
-        const resumeComplete = isResumeComplete({
-          ...resume,
-          workExperiences: experiences,
-          educations: studies
-        } as ResumeServerData);
-        console.log("resumeComplete: ", resumeComplete)
-        if(resumeComplete && ctx.clerkUserId){
-          const client = await clerkClient()
-          await client.users.updateUser(ctx.clerkUserId, {
-            publicMetadata: {
-              onboardingComplete: true,
-              role: "CANDIDATE"
-            },
-          })
-        }
-        return { updatedResume: newResume };
-      }
-    }),
-    getDefaultResume: candidateProcedure.query(async ({ ctx }) => {
-      const userId = ctx.user.id;
-  
-      // Always get the candidate from DB
-      const candidate = await db
-        .select()
-        .from(candidates)
-        .where(eq(candidates.id, userId))
-        .then(res => res[0]);
-  
-      if (!candidate) {
-        throw new Error("Candidate not found");
-      }
-  
-      // Create a resume if default_resume_id is not set
-      if (!candidate.defaultResumeId) {
-        const [resume] = await db.insert(resumes).values({
-          title: "Default Resume",
-          description: "Your Default Resume",
-          userId: candidate.id,
-        }).returning();
-  
-        await db.update(candidates)
-          .set({ defaultResumeId: resume.id })
-          .where(eq(candidates.id, userId));
-  
-        candidate.defaultResumeId = resume.id; // Update local variable
-      }
-      console.log("candidate", candidate);
-      // Now fetch the actual resume
-      const resume = await db
+    const userId = ctx.user.id;
+    // console.log("userId: ", input)
+    if (!userId) throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Not authenticated"
+    });
+    // ✅ Replace db.query.resumes.findMany
+    if (!id) {
+      const resumeCount = await db
         .select()
         .from(resumes)
-        .where(and(
-          eq(resumes.userId, userId),
-          eq(resumes.id, candidate.defaultResumeId)
-        ))
-        .then(res => res[0]);
-  
-      if (!resume) {
-        throw new Error("Default resume not found");
+        .where(eq(resumes.userId, userId));
+      console.log("resumeCount: ", resumeCount)
+      // Uncomment for permissions
+      // if (!canCreateResume(subscriptionLevel, resumeCount.length)) {
+      //   throw new Error("Maximum resume count reached");
+      // }
+    }
+    await db.update(candidates).set({
+      defaultResumeId: id
+    }).where(eq(candidates.id, ctx.user.id));
+    // ✅ Replace db.query.resumes.findFirst
+    const existingResume = id
+      ? await db
+        .select()
+        .from(resumes)
+        .where(and(eq(resumes.id, id), eq(resumes.userId, userId)))
+        .limit(1)
+        .then((res) => res[0] || null)
+      : null;
+
+    if (!id && !existingResume) throw new Error("Resume not found");
+
+
+    const resumeData = {
+      ...resumeValues,
+      lat: Number(resumeValues.lat),
+      lng: Number(resumeValues.lng),
+      updatedAt: new Date(),
+    };
+    // console.log(id, existingResume)
+    if (id) {
+      // 🔁 Update Resume
+      await db.update(resumes).set(resumeData).where(eq(resumes.id, id));
+
+      // 🔁 Delete related
+      await db.delete(workExperiences).where(eq(workExperiences.resumeId, id));
+      await db.delete(educations).where(eq(educations.resumeId, id));
+
+      // 🔁 Re-insert related
+      if (works?.length) {
+        // console.log(works)
+        await db.insert(workExperiences).values(
+          works.map((exp) => ({
+            ...exp,
+            resumeId: id,
+            startDate: exp.startDate ? new Date(exp.startDate) : undefined,
+            endDate: exp.endDate ? new Date(exp.endDate) : undefined,
+          }))
+        );
       }
-  
-      const experiences = await db
-        .select()
-        .from(workExperiences)
-        .where(eq(workExperiences.resumeId, resume.id));
-  
-      const studies = await db
-        .select()
-        .from(educations)
-        .where(eq(educations.resumeId, resume.id));
-  
-      const finalResume: ResumeServerData = {
+
+      if (edus?.length) {
+        await db.insert(educations).values(
+          edus.map((edu) => ({
+            ...edu,
+            resumeId: id,
+            startDate: edu.startDate ? new Date(edu.startDate) : undefined,
+            endDate: edu.endDate ? new Date(edu.endDate) : undefined,
+          }))
+        );
+      }
+      const [resume] = await db.select().from(resumes).where(eq(resumes.id, id))
+      const experiences = await db.select().from(workExperiences).where(eq(workExperiences.resumeId, id))
+      const studies = await db.select().from(educations).where(eq(educations.resumeId, id))
+      const resumeComplete = isResumeComplete({
         ...resume,
         workExperiences: experiences,
-        educations: studies,
-      };
-  
-      return finalResume;
-    }),
+        educations: studies
+      } as ResumeServerData);
+      console.log("resumeComplete: ", resumeComplete)
+      if (resumeComplete && ctx.clerkUserId) {
+        const client = await clerkClient()
+        await client.users.updateUser(ctx.clerkUserId, {
+          publicMetadata: {
+            onboardingComplete: true,
+            role: "CANDIDATE"
+          },
+        })
+      }
+      return { updatedResume: existingResume };
+    } else {
+      // 🔁 Insert new resume
+      const [newResume] = await db
+        .insert(resumes)
+        .values({
+          ...resumeData,
+          userId,
+          createdAt: new Date(),
+        })
+        .returning();
+
+      if (!newResume?.id) throw new Error("Failed to create resume");
+
+      const resumeId = newResume.id;
+
+      if (works?.length) {
+        await db.insert(workExperiences).values(
+          works.map((exp) => ({
+            ...exp,
+            resumeId,
+            startDate: exp.startDate ? new Date(exp.startDate) : undefined,
+            endDate: exp.endDate ? new Date(exp.endDate) : undefined,
+          }))
+        );
+      }
+
+      if (edus?.length) {
+        await db.insert(educations).values(
+          edus.map((edu) => ({
+            ...edu,
+            resumeId,
+            startDate: edu.startDate ? new Date(edu.startDate) : undefined,
+            endDate: edu.endDate ? new Date(edu.endDate) : undefined,
+          }))
+        );
+      }
+      const [resume] = await db.select().from(resumes).where(eq(resumes.id, resumeId))
+      const experiences = await db.select().from(workExperiences).where(eq(workExperiences.resumeId, resumeId))
+      const studies = await db.select().from(educations).where(eq(educations.resumeId, resumeId))
+      const resumeComplete = isResumeComplete({
+        ...resume,
+        workExperiences: experiences,
+        educations: studies
+      } as ResumeServerData);
+      console.log("resumeComplete: ", resumeComplete)
+      if (resumeComplete && ctx.clerkUserId) {
+        const client = await clerkClient()
+        await client.users.updateUser(ctx.clerkUserId, {
+          publicMetadata: {
+            onboardingComplete: true,
+            role: "CANDIDATE"
+          },
+        })
+      }
+      return { updatedResume: newResume };
+    }
+  }),
+  getDefaultResume: candidateProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    // Always get the candidate from DB
+    const candidate = await db
+      .select()
+      .from(candidates)
+      .where(eq(candidates.id, userId))
+      .then(res => res[0]);
+
+    if (!candidate) {
+      throw new Error("Candidate not found");
+    }
+
+    // Create a resume if default_resume_id is not set
+    if (!candidate.defaultResumeId) {
+      const [resume] = await db.insert(resumes).values({
+        title: "Default Resume",
+        description: "Your Default Resume",
+        userId: candidate.id,
+      }).returning();
+
+      await db.update(candidates)
+        .set({ defaultResumeId: resume.id })
+        .where(eq(candidates.id, userId));
+
+      candidate.defaultResumeId = resume.id; // Update local variable
+    }
+    console.log("candidate", candidate);
+    // Now fetch the actual resume
+    const resume = await db
+      .select()
+      .from(resumes)
+      .where(and(
+        eq(resumes.userId, userId),
+        eq(resumes.id, candidate.defaultResumeId)
+      ))
+      .then(res => res[0]);
+
+    if (!resume) {
+      throw new Error("Default resume not found");
+    }
+
+    const experiences = await db
+      .select()
+      .from(workExperiences)
+      .where(eq(workExperiences.resumeId, resume.id));
+
+    const studies = await db
+      .select()
+      .from(educations)
+      .where(eq(educations.resumeId, resume.id));
+
+    const finalResume: ResumeServerData = {
+      ...resume,
+      workExperiences: experiences,
+      educations: studies,
+    };
+
+    return finalResume;
+  }),
   getAllCandidates: protectedProcedure.input(
-      z.object({
-        search: z.string().optional(),
-        sortBy: z.enum(["name", "email", "createdAt"]).default("createdAt"),
-        sortOrder: z.enum(["asc", "desc"]).default("desc"),
-      }).optional()).query(async ({ input }) => {
-      const { search, sortBy = "createdAt", sortOrder = "desc" } = input || {};
+    z.object({
+      search: z.string().optional(),
+      sortBy: z.enum(["name", "email", "createdAt"]).default("name"),
+      sortOrder: z.enum(["asc", "desc"]).default("asc"),
+    }).optional()).query(async ({ input }) => {
+      const { search, sortBy = "name", sortOrder = "asc" } = input || {};
 
       // Safe sort field fallback
       const sortField = {
-        name: candidates.name,
-        email: candidates.email,
-        createdAt: candidates.createdAt,
+        name: resumes.firstName,
+        email: resumes.email,
+        createdAt: resumes.createdAt,
       }[sortBy];
 
       const orderClause = sortOrder === "asc" ? asc(sortField) : desc(sortField);
@@ -264,8 +264,9 @@ export const candidatesRouter = createTRPCRouter({
         .where(
           search
             ? or(
-              ilike(candidates.name, `%${search}%`),
-              ilike(candidates.email, `%${search}%`)
+              ilike(resumes.firstName, `%${search}%`),
+              ilike(resumes.lastName, `%${search}%`),
+              ilike(resumes.email, `%${search}%`)
             )
             : undefined
         )
@@ -278,6 +279,7 @@ export const candidatesRouter = createTRPCRouter({
 
       // Format result to remove duplication
       const candidatesMap = new Map<string, CandidateWithResume>();
+      const orderedIds: string[] = [];
 
       for (const row of result) {
         const candidateId = row.candidate.id;
@@ -293,21 +295,22 @@ export const candidatesRouter = createTRPCRouter({
               }
               : null,
           });
+          orderedIds.push(candidateId); // ✅ track insertion order
         }
 
         const candidateData = candidatesMap.get(candidateId)!;
 
-        if (row.workExperiences && row.workExperiences.id) {
+        if (row.workExperiences?.id) {
           candidateData.resumeData?.workExperiences.push(row.workExperiences);
         }
-        if (row.educations && row.educations.id) {
+
+        if (row.educations?.id) {
           candidateData.resumeData?.educations.push(row.educations);
         }
       }
 
-      const candidatesArray = Array.from(candidatesMap.values());
-      console.log("✅ Formatted Candidates:", candidatesArray);
-
+      const candidatesArray = orderedIds.map((id) => candidatesMap.get(id)!);
+      console.log("candidatesArray: ", candidatesArray);
       return candidatesArray;
     }),
   getProfile: candidateProcedure.query(async ({ ctx }) => {
@@ -447,12 +450,12 @@ export const candidatesRouter = createTRPCRouter({
     console.log(search, sortBy, sortOrder)
     const candidateId = ctx.user.id;
     const favoriteJobs = await db
-    .select({ job: jobs }) // sirf job object
-    .from(jobFavorites)
-    .innerJoin(jobs, eq(jobFavorites.jobId, jobs.id))
-    .where(eq(jobFavorites.candidateId, candidateId))
-    .orderBy(sortOrder === "asc" ? asc(jobs.createdAt) : desc(jobs.createdAt));
+      .select({ job: jobs }) // sirf job object
+      .from(jobFavorites)
+      .innerJoin(jobs, eq(jobFavorites.jobId, jobs.id))
+      .where(eq(jobFavorites.candidateId, candidateId))
+      .orderBy(sortOrder === "asc" ? asc(jobs.createdAt) : desc(jobs.createdAt));
 
-  return favoriteJobs.map((item) => item.job);
+    return favoriteJobs.map((item) => item.job);
   })
 })

@@ -29,14 +29,20 @@ export default function JobAction({ job }: { job: GetAllJobsOutput[number] }) {
       {
         (
           <div className="flex items-center gap-2">
-            <Button variant="default" className="ml-auto" onClick={() => toggleApplication({ jobId: job.id })}>
+            <Button variant="default" className="ml-auto" onClick={(e) => {
+              e.stopPropagation();
+              toggleApplication({ jobId: job.id })
+            }}>
               {status ? "Applied" : "Apply"}
             </Button>
             <Heart
               className={`w-4 h-4 cursor-pointer ${
                 isFavorite(job.id) ? "fill-red-500 text-red-500" : "fill-gray-500 text-gray-500"
               }`}
-              onClick={() => toggleFavorite(job.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(job.id);
+              }}
             />
           </div>
         )

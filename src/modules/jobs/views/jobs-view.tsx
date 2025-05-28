@@ -5,20 +5,23 @@ import { Input } from "@/components/ui/input";
 import { trpc } from "@/trpc/client";
 import { Search } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useDebounce } from "use-debounce"; // 👈 install this
 import { JobCard } from "../sections/JobCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Job } from "@/types";
+import { ErrorBoundary } from "react-error-boundary";
 
 export default function JobsView() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch] = useDebounce(searchQuery, 400); // ⏳ delay query
 
-    const [sortBy, setSortBy] = useState<"name" | "createdAt">("createdAt");
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    const [sortBy, setSortBy] = useState<"title" | "createdAt">("title");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
     const [jobs] = trpc.job.getAllJobs.useSuspenseQuery({
         search: debouncedSearch,
-        // sortBy,
+        sortBy,
         sortOrder,
     });
 
@@ -54,10 +57,10 @@ export default function JobsView() {
                 <div className="flex flex-col md:flex-row gap-3 items-start md:items-center ml-auto mt-4 mr-2">
                     <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as "name" | "createdAt")}
+                        onChange={(e) => setSortBy(e.target.value as "title" | "createdAt")}
                         className="border px-2 py-2 rounded-md"
                     >
-                        <option value="companyName">Sort by Name</option>
+                        <option value="title">Sort by Title</option>
                         <option value="createdAt">Sort by Created</option>
                     </select>
 
@@ -72,12 +75,45 @@ export default function JobsView() {
                 </div>
             </div>
 
-            {/* 📋 Job Cards */}
-            <div className="w-full container mx-auto flex flex-wrap gap-4 space-y-4">
-                    {jobs?.map((job) => (
-                        <JobCard key={job.id} job={job} />
-                    ))}
-                </div>
+            <Suspense fallback={<FavoriteJobsListSkeleton />}>
+            <ErrorBoundary fallback={<div>Something went wrong</div>}>
+            <FavoriteJobsSuspense data={jobs} />
+            </ErrorBoundary>
+            </Suspense>
         </div>
+    );
+}
+export function FavoriteJobsListSkeleton() {
+    return (
+        <div>
+            <Skeleton className="h-8 w-48" />
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="space-y-4 p-6 border rounded-lg">
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-20 w-full" />
+                        <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-6 w-24" />
+                        </div>
+                        <div className="flex gap-2">
+                            <Skeleton className="h-10 flex-1" />
+                            <Skeleton className="h-10 w-32" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+const FavoriteJobsSuspense = ({data}: {data: Job[]})=>{
+    return (
+        <div className="w-full container mx-auto flex flex-wrap gap-4 space-y-4">
+                {data.map((job) => (
+                    <JobCard key={job.id} job={job} />
+                ))}
+            </div>
     );
 }

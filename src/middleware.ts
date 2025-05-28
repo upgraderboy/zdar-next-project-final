@@ -14,7 +14,8 @@ const isLoggedInPublicRoute = createRouteMatcher([
   '/profile(.*)',
   '/jobs(.*)',
   '/favorites(.*)',
-  '/candidates(.*)'
+  '/candidates(.*)',
+  '/companies(.*)'
 ])
 
 export default clerkMiddleware(async (auth, req) => {

@@ -12,13 +12,15 @@ export const companyRouter = createTRPCRouter({
       sortOrder: z.enum(["asc", "desc"]).default("desc"),
     }).optional()
   ).query(async ({ input }) => {
-    const { search, sortOrder = "desc" } = input || {};
+    const { search, sortBy = "createdAt", sortOrder = "desc" } = input || {};
     const companiesList = await db.select().from(companies).where(
       and(
         ilike(companies.companyName, `%${search}%`)
       )
     ).orderBy(
-      sortOrder === "asc" ? asc(companies.createdAt) : desc(companies.createdAt)
+      sortBy === "companyName"
+        ? (sortOrder === "asc" ? asc(companies.companyName) : desc(companies.companyName))
+        : (sortOrder === "asc" ? asc(companies.createdAt) : desc(companies.createdAt))
     );
     // console.log(profile)
     return companiesList;

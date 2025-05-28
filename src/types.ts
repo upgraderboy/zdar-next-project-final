@@ -10,3 +10,4 @@ export type Job = GetAllJobsOutput[number]
 export const ageOptions = ["up to 20", "21-30", "31-40", "41-50", "51-60", "60 and up"] as const;
 export type AgeOption = typeof ageOptions[number];
 export type AgeCategory = "up to 20" | "21-30" | "31-40" | "41-50" | "51-60" | "60 and up";
+export type Company = GetAllCompaniesOutput[number]

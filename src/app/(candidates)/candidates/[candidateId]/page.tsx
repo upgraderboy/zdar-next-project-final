@@ -1,4 +1,4 @@
-import { CandidateProfileView } from "@/modules/candidates/ui/views/candidate-profile-view";
+import { CandidateProfileView } from "@/modules/candidates/views/candidate-profile-view";
 import { HydrateClient } from "@/trpc/server";
 import { trpc } from "@/trpc/server";
 export const dynamic = "force-dynamic";

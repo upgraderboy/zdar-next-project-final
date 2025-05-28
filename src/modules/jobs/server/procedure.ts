@@ -13,19 +13,30 @@ export const jobRouter = createTRPCRouter({
       sortOrder: z.enum(["asc", "desc"]).default("desc"),
     }).optional()
   ).query(async ({ input }) => {
-    const { search = "", sortOrder = "desc" } = input || {};
-    const job = await db.select().from(jobs).where(
-      and(
-        ilike(jobs.title, `%${search}%`),
-        eq(jobs.isPublished, true)
+    const { search = "", sortBy = "createdAt", sortOrder = "desc" } = input || {};
+  
+    const sortField = {
+      title: jobs.title,
+      createdAt: jobs.createdAt,
+    }[sortBy];
+  
+    const orderClause = sortOrder === "asc" ? asc(sortField) : desc(sortField);
+  
+    const job = await db
+      .select()
+      .from(jobs)
+      .where(
+        and(
+          ilike(jobs.title, `%${search}%`),
+          eq(jobs.isPublished, true)
+        )
       )
-    ).orderBy(
-      sortOrder === "asc" ? asc(jobs.createdAt) : desc(jobs.createdAt)
-    );
+      .orderBy(orderClause);
+  
     if (!job) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
     }
-    console.log(job);
+  
     return job;
   }),
   createJob: companyProcedure

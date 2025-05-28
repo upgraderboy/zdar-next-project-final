@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CandidateCard } from "@/modules/candidates/ui/components/candidate-list/CandidateCard";
+import { CandidateCard } from "@/modules/candidates/ui/components/candidate-card/CandidateCard";
 import { trpc } from "@/trpc/client";
 import { Search } from "lucide-react";
 import Image from "next/image";

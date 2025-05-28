@@ -1,4 +1,4 @@
-import ProfileSection from "../sections/candidate-profile-section";
+import ProfileSection from "../ui/sections/candidate-profile-section";
 
 export function CandidateProfileView({ candidateId }: { candidateId: string }) {
     console.log(candidateId)

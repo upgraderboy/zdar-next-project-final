@@ -1,5 +1,5 @@
 import { HydrateClient } from "@/trpc/server";
-import { CandidateProfileView } from "@/modules/candidates/ui/views/profile-view";
+import { CandidateProfileView } from "@/modules/candidates/views/profile-view";
 import { trpc } from "@/trpc/server";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";

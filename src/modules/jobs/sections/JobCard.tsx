@@ -3,7 +3,7 @@
 import { GetAllJobsOutput } from "@/types"
 
 import { useUser } from "@clerk/nextjs"
-import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useState } from "react"
 import { JobDetailCard } from "../ui/components/JobDetailCard"
 import JobAction from "./JobAction"
@@ -26,7 +26,7 @@ export function JobCard({ job }: JobCardProps) {
                             <p className="text-xs text-gray-500">{job.jobType}</p>
                         </div>
                     </div>
-                    <div onClick={() => setShowDetail(false)}>
+                    <div>
                         {
                             user?.publicMetadata.role === "CANDIDATE" && (
                                 <JobAction job={job} />
@@ -35,7 +35,10 @@ export function JobCard({ job }: JobCardProps) {
                     </div>
                 </div>
             </DialogTrigger>
-            {showDetail && <JobDetailCard job={job} />}
+            <DialogContent>
+            <DialogTitle></DialogTitle>
+                <JobDetailCard job={job} />
+            </DialogContent>
         </Dialog>
     )
 }

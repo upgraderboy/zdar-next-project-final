@@ -1,13 +1,16 @@
 "use client";
 
 import { trpc } from "@/trpc/client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useDebounce } from "use-debounce"; // 👈 install this
 import { CompanyCard } from "@/modules/companies/ui/components/CompanyCard";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorBoundary } from "react-error-boundary";
+import { Company } from "@/types";
 export default function CompanyListView() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch] = useDebounce(searchQuery, 400); // ⏳ delay query
@@ -15,7 +18,7 @@ export default function CompanyListView() {
     const [sortBy, setSortBy] = useState<"companyName" | "createdAt">("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    const { data, isLoading } = trpc.companies.getAllCompanies.useQuery({
+    const [data] = trpc.companies.getAllCompanies.useSuspenseQuery({
         search: debouncedSearch,
         sortBy,
         sortOrder,
@@ -70,17 +73,51 @@ export default function CompanyListView() {
                     </select>
                 </div>
             </div>
+            <Suspense fallback={<CompanyListSkeleton />}>
+            <ErrorBoundary fallback={<div>Something went wrong</div>}>
+            <CompanyListSuspense data={data} />
+            </ErrorBoundary>
+            </Suspense>
             
-            {/* 📋 Candidate Cards */}
-            {isLoading ? (
-                <div>Loading...</div>
-            ) : (
-                <div className="w-full container mx-auto flex flex-wrap gap-4">
-                    {data?.map((company) => (
+        </div>
+    );
+}
+
+
+
+
+
+export function CompanyListSkeleton() {
+    return (
+        <div>
+            <Skeleton className="h-8 w-48" />
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-1">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="space-y-4 p-6 border rounded-lg">
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-20 w-full" />
+                        <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-6 w-24" />
+                        </div>
+                        <div className="flex gap-2">
+                            <Skeleton className="h-10 flex-1" />
+                            <Skeleton className="h-10 w-32" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+const CompanyListSuspense = ({ data }: { data: Company[] }) => {
+    return (
+        <div className="w-full container mx-auto flex flex-wrap gap-4">
+                    {data.map((company) => (
                         <CompanyCard key={company.id} company={company} />
                     ))}
                 </div>
-            )}
-        </div>
     );
 }
