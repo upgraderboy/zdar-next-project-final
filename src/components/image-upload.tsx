@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ImagePlus, Trash } from "lucide-react";
 import Image from "next/image";
-import {CldUploadEventCallback, CldUploadWidget} from "next-cloudinary";
+import { CldUploadWidget } from "next-cloudinary";
 interface ImageUploadProps {
   disabled?: boolean;
   onChange: (value: string) => void;
@@ -16,7 +16,7 @@ const ImageUpload = ({ disabled, onChange, onRemove, value }: ImageUploadProps) 
     setIsMounted(true);
   }, []);
   if (!isMounted) return null;
-  const onSuccess: CldUploadEventCallback = (result) => {
+  const onSuccess = (result) => {
     if (typeof result.info !== "string") {
       onChange(result?.info?.secure_url || "");
     }
