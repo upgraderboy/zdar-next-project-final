@@ -1,5 +1,4 @@
 import JobLayout from "@/modules/jobs/layouts/form-layout";
-
 interface HomeLayoutProps {
     children: React.ReactNode;
 }
@@ -7,7 +6,9 @@ interface HomeLayoutProps {
 const JobPageLayout = async ({ children }: HomeLayoutProps) => {
     return (
         <>
-            <JobLayout>{children}</JobLayout>
+            <JobLayout>
+                {children}
+            </JobLayout>
         </>
     )
 }

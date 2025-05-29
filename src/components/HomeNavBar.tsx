@@ -7,8 +7,8 @@ import { AuthButton } from "@/modules/auth/components/auth-button"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ModeToggle } from "@/components/ui/ModeToggle"
-
-export const HomeNavBar = () => {
+import { Roles } from "../../types/globals";
+export const HomeNavBar = ({ role }: { role?: Roles }) => {
     const isMobile = useIsMobile();
     return (
         <nav className="fixed top-0 left-0 right-0 h-16 bg-slate-700 flex items-center px-2 pr-5 z-50">
@@ -29,7 +29,7 @@ export const HomeNavBar = () => {
                 </div>
                 {/* Search Bar */}
                 <div className="flex-1 justify-center max-w-[720px] hidden md:flex">
-                    <NavLinks />
+                    <NavLinks role={role} />
                 </div>
                 {/* Notifications */}
                 {/* <div className="flex items-center gap-2">

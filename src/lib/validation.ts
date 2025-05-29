@@ -37,41 +37,75 @@ export const personalInfoSchema = z.object({
 
 export type PersonalInfoValues = z.infer<typeof personalInfoSchema>;
 
+
+const workExperienceItemSchema = z
+  .object({
+    position: z.string().min(1, {
+      message: "Required"
+    }),
+    company: z.string().min(1, {
+      message: "Required"
+    }),
+    startDate: z.string().min(1, {
+      message: "Required"
+    }),
+    endDate: z.string().min(1, {
+      message: "Required"
+    }),
+    description: z.string().min(1, {
+      message: "Required"
+    }),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true; // skip if either is missing
+      return new Date(data.endDate) >= new Date(data.startDate);
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"],
+    }
+  );
+
 export const workExperienceSchema = z.object({
-  workExperiences: z
-    .array(
-      z.object({
-        position: optionalString,
-        company: optionalString,
-        startDate: optionalString,
-        endDate: optionalString,
-        description: optionalString,
-      }),
-    )
-    .optional(),
+  workExperiences: z.array(workExperienceItemSchema),
 });
-
-export type WorkExperienceValues = z.infer<typeof workExperienceSchema>;
-
 export type WorkExperience = NonNullable<
   z.infer<typeof workExperienceSchema>["workExperiences"]
 >[number];
+// Assuming optionalString = z.string().optional() or similar
+const educationItemSchema = z
+  .object({
+    degree: z.string().min(1, {
+      message: "Required"
+    }),
+    school: z.string().min(1, {
+      message: "Required"
+    }),
+    startDate: z.string().min(1, {
+      message: "Required"
+    }),
+    endDate: z.string().min(1, {
+      message: "Required"
+    }),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true; // skip validation if either is missing
+      return new Date(data.endDate) >= new Date(data.startDate);
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"], // shows error under endDate
+    }
+  );
 
 export const educationSchema = z.object({
-  educations: z
-    .array(
-      z.object({
-        degree: optionalString,
-        school: optionalString,
-        startDate: optionalString,
-        endDate: optionalString,
-      }),
-    )
-    .optional(),
+  educations: z.array(educationItemSchema),
 });
 
 export type EducationValues = z.infer<typeof educationSchema>;
-
+export type WorkExperienceValues = z.infer<typeof workExperienceSchema>;
 export const skillsSchema = z.object({
   softSkills: z.array(z.string().trim()).optional(),
   hardSkills: z.array(z.string().trim()).optional(),

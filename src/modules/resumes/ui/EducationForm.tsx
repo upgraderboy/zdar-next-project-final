@@ -43,6 +43,7 @@ export default function EducationForm({
     defaultValues: {
       educations: resumeData.educations || [],
     },
+    mode: "onBlur",
   });
 
   const watchedEducations = useWatch({

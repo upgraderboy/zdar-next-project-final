@@ -271,6 +271,24 @@ export default function JobForm({ initialData }: JobFormProps) {
           )}
         />
         </div>
+        {/* CheckBox for isRemote */}
+        <FormField
+          control={form.control}
+          name="isRemote"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Is Remote</FormLabel>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>Is this job remote?</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {/* Annual Salary */}
         {/* <FormField control={form.control} name="annualSalary" render={({ field }) => (
           <FormItem>

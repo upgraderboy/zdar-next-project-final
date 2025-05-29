@@ -107,7 +107,7 @@ export const OnboardingSectionSuspense = () => {
         // setCurrentStep={setStep}
         showSmResumePreview={showSmResumePreview}
         setShowSmResumePreview={setShowSmResumePreview}
-        isSaving={isSaving}
+
       />
     </div>
     </main>

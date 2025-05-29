@@ -16,9 +16,12 @@ import PersonalInfoForm from "./PersonalInfoForm";
 import SkillsForm from "./SkillsForm";
 import WorkExperienceForm from "./WorkExperienceForm";
 import EducationForm from "./EducationForm";
-import useAutoSaveResume from "@/lib/useAutoSaveResume";
+// import useAutoSaveResume from "@/lib/useAutoSaveResume";
 import Footer from "@/modules/resumes/ui/components/Footer";
-import useUnloadWarning from "@/hooks/useUnloadWarning";
+// import useUnloadWarning from "@/hooks/useUnloadWarning";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface ResumeEditorProps {
   resumeId: string;
@@ -51,13 +54,23 @@ const ResumeEditorSectionSkeleton = () => {
 }
 export const ResumeEditorSectionSuspense = ({ resumeId }: ResumeEditorProps) => {
     const { userId } = useAuth();
+    const router = useRouter();
     const [resume] = trpc.resume.getOne.useSuspenseQuery({ id: resumeId });
     const [resumeData, setResumeData] = useState<ResumeValues>(mapToResumeValues(resume));
     const [showSmResumePreview, setShowSmResumePreview] = useState(false);
     console.log("resumeData", resumeData)
-    const { isSaving, hasUnsavedChanges } = useAutoSaveResume(resumeData);
-    console.log("hasUnsavedChanges: ", hasUnsavedChanges, isSaving)
-    useUnloadWarning(hasUnsavedChanges);
+    // const { isSaving, hasUnsavedChanges } = useAutoSaveResume(resumeData);
+    // console.log("hasUnsavedChanges: ", hasUnsavedChanges, isSaving)
+    // useUnloadWarning(hasUnsavedChanges);
+    const { mutate: SaveResume } = trpc.resume.save.useMutation({
+      onSuccess: ()=>{
+        toast("Resume saved successfully")
+        router.push("/resume")
+      },
+      onError: ()=>{
+        toast("Resume saved failed")
+      }
+    })
     if (!userId) {
       return null;
     }
@@ -73,7 +86,7 @@ export const ResumeEditorSectionSuspense = ({ resumeId }: ResumeEditorProps) => 
         </p>
       </header>
       <main className="relative grow">
-        <div className="absolute bottom-0 top-0 flex w-full mb-20">
+        <div className="absolute bottom-0 top-0 flex w-full">
           <div
             className={cn(
               "w-full space-y-6 p-3 md:block md:w-1/2",
@@ -97,6 +110,22 @@ export const ResumeEditorSectionSuspense = ({ resumeId }: ResumeEditorProps) => 
               resumeData={resumeData}
               setResumeData={setResumeData}
             />
+        <div className="w-full flex justify-center mb-10">
+          <Button
+            className="mb-10"
+            onClick={() => {
+              SaveResume({
+                ...resumeData,
+                id: resumeData.id
+              })
+            }}
+            // disabled={isSaving}
+            variant="outline"
+            size="sm"
+          >
+            Save Resume
+          </Button>
+        </div>
           </div>
           <div className="grow md:border-r" />
           <ResumePreviewSection
@@ -111,7 +140,7 @@ export const ResumeEditorSectionSuspense = ({ resumeId }: ResumeEditorProps) => 
         // setCurrentStep={setStep}
         showSmResumePreview={showSmResumePreview}
         setShowSmResumePreview={setShowSmResumePreview}
-        isSaving={isSaving}
+        // isSaving={isSaving}
       />
     </div>
     </main>

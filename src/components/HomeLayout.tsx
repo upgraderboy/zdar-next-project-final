@@ -19,7 +19,7 @@ export const HomeLayout = ({ children, role, userId }: HomeLayoutProps) => {
     <SidebarProvider>
       <div className="flex flex-col min-h-screen w-full">
         {/* Top Nav */}
-        <HomeNavBar />
+        <HomeNavBar role={role} />
 
         {/* Main Content + Sidebar */}
         <div className="flex flex-1">

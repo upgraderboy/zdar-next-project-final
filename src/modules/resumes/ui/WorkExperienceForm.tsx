@@ -50,6 +50,7 @@ export default function WorkExperienceForm({
         endDate: exp.endDate ? new Date(exp.endDate).toISOString().split("T")[0] : undefined,
       })),
     },
+    mode: "onBlur",
   });
 
   const watchedWorkExperiences = useWatch({

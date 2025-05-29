@@ -6,13 +6,15 @@ import { useState } from "react"
 import JobApplicationModal from "@/modules/resumes/ui/components/ResumeSelectModal"
 import { useFavoriteJobs } from "@/hooks/useFavJobs"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 export default function JobAction({ job }: { job: GetAllJobsOutput[number] }) {
   const utils = trpc.useUtils();
   const { data: status } = trpc.job.checkApplied.useQuery({ jobId: job.id });
-  const { mutate: toggleApplication } = trpc.job.addJobApplication.useMutation({
-    onSuccess: () => {
-      toast("Applied successfully");
+  const { mutate: toggleApplication } = trpc.job.toggleJobApplication.useMutation({
+    onSuccess: (data) => {
+      toast(data.message);
       utils.applications.getApplicationsByCandidate.invalidate();
+      utils.job.checkApplied.invalidate({ jobId: job.id });
     },
     onError: (err) => {
       toast(err.message);
@@ -29,11 +31,16 @@ export default function JobAction({ job }: { job: GetAllJobsOutput[number] }) {
       {
         (
           <div className="flex items-center gap-2">
-            <Button variant="default" className="ml-auto" onClick={(e) => {
+            <Button variant="default" className={cn("ml-auto", {
+              "bg-primary text-white": !status,
+              "bg-gray-400 cursor-not-allowed": status === "PENDING",
+              "bg-blue-400 cursor-not-allowed": status === "SHORTLISTED",
+              "bg-green-400 cursor-not-allowed": status === "HIRED",
+            })} onClick={(e) => {
               e.stopPropagation();
               toggleApplication({ jobId: job.id })
             }}>
-              {status ? "Applied" : "Apply"}
+              {!status ? "Apply" : status === "PENDING" ? "Pending" : status === "SHORTLISTED" ? "Shortlisted" : status === "HIRED" ? "Hired" : "Applied"}
             </Button>
             <Heart
               className={`w-4 h-4 cursor-pointer ${

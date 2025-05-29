@@ -26,9 +26,12 @@ export function ApplicationListSuspense() {
     //   const queryClient = useQueryClient()
     const [applications] = trpc.applications.getApplicationsByCandidate.useSuspenseQuery();
     const removeApplicationMutation = trpc.applications.removeApplication.useMutation({
-        onSuccess: () => {
+        onSuccess: (data) => {
             utils.applications.getApplicationsByCandidate.invalidate();
-            toast("Your Application is removed from jobs!")
+            toast(data.message)
+        },
+        onError: (err) => {
+            toast(err.message)
         }
     })
     const createApplicationMutation = trpc.applications.createApplication.useMutation({

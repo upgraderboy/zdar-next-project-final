@@ -41,18 +41,18 @@ export function mapToResumeValues(data: ResumeServerData): ResumeValues {
     country: data.country || undefined,
     phone: data.phone || undefined,
     email: data.email || undefined,
-    workExperiences: data.workExperiences.map((exp) => ({
-      position: exp.position || undefined,
-      company: exp.company || undefined,
-      startDate: exp.startDate?.toISOString().split("T")[0],
-      endDate: exp.endDate?.toISOString().split("T")[0],
-      description: exp.description || undefined,
+    workExperiences: (data.workExperiences ?? []).map((exp) => ({
+      position: exp.position,
+      company: exp.company,
+      startDate: exp.startDate?.toISOString().split("T")[0] ?? "",
+      endDate: exp.endDate?.toISOString().split("T")[0] ?? "",
+      description: exp.description ?? "",
     })),
-    educations: data.educations.map((edu) => ({
-      degree: edu.degree || undefined,
-      school: edu.school || undefined,
-      startDate: edu.startDate?.toISOString().split("T")[0],
-      endDate: edu.endDate?.toISOString().split("T")[0],
+    educations: (data.educations ?? []).map((edu) => ({
+      degree: edu.degree ?? "",
+      school: edu.school ?? "",
+      startDate: edu.startDate?.toISOString().split("T")[0] ?? "",
+      endDate: edu.endDate?.toISOString().split("T")[0] ?? "",
     })),
     hardSkills: data.hardSkills,
     softSkills: data.softSkills,
@@ -78,21 +78,21 @@ export function formatDate(date: Date | null | undefined): string {
     year: "numeric",
   }).format(new Date(date))
 }
-export function sanitizeResume(resume: ResumeServerData): ResumeValues {
+export function sanitizeResume(resume: ResumeServerData): ResumeServerData {
   return {
     ...resume,
     email: resume.email ?? undefined,
     photoUrl: resume.photoUrl ?? undefined,
     workExperiences: resume.workExperiences.map((exp) => ({
-      position: exp.position ?? undefined,
-      company: exp.company ?? undefined,
+      position: exp.position,
+      company: exp.company,
       startDate: exp.startDate?.toISOString().split("T")[0],
       endDate: exp.endDate?.toISOString().split("T")[0],
-      description: exp.description ?? undefined,
+      description: exp.description,
     })),
     educations: resume.educations.map((edu) => ({
-      degree: edu.degree ?? undefined,
-      school: edu.school ?? undefined,
+      degree: edu.degree,
+      school: edu.school,
       startDate: edu.startDate?.toISOString().split("T")[0],
       endDate: edu.endDate?.toISOString().split("T")[0],
     })),

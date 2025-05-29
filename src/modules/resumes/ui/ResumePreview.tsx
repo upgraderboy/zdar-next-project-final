@@ -1,15 +1,15 @@
 import { BorderStyles } from "@/modules/resumes/ui/components/BorderStyleButton";
 import useDimensions from "@/hooks/useDimensions";
 import { cn } from "@/lib/utils";
-import { ResumeValues } from "@/lib/validation";
 import { formatDate } from "date-fns";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { THUMBNAIL_FALLBACK } from "@/constants";
+import { ResumeServerData } from "../../../../types/globals";
 
 interface ResumePreviewProps {
-  resumeData: ResumeValues;
+  resumeData: ResumeServerData;
   contentRef?: React.Ref<HTMLDivElement>;
   className?: string;
 }
@@ -50,7 +50,7 @@ export default function ResumePreview({
 }
 
 interface ResumeSectionProps {
-  resumeData: ResumeValues;
+  resumeData: ResumeServerData;
 }
 
 function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {

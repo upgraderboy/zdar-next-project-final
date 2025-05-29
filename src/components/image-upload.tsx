@@ -45,7 +45,7 @@ const ImageUpload = ({ disabled, onChange, onRemove, value }: ImageUploadProps) 
           }
           return (
             <Button type="button" variant={"outline"} disabled={disabled} onClick={onClick}>
-              <ImagePlus className="w-4 h-4 mr-2" /> Upload Banner
+              <ImagePlus className="w-4 h-4 mr-2" /> Upload Image
             </Button>
           )
         }

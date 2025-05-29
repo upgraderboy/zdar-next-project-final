@@ -151,7 +151,7 @@ export const jobs = pgTable("jobs", {
     domainType: domainTypeEnum("domain_type").default("TECH").notNull(),
     ageCategory: ageCategoryEnum("age_category").default("up to 20").array().notNull(),
     isDisabilityAllowed: boolean("is_disability_allowed").default(false).notNull(),
-    isPublished: boolean("is_published").default(false).notNull(),
+    isPublished: boolean("is_published").default(true).notNull(),
     companyId: uuid("company_id")
         .references(() => companies.id, { onDelete: "cascade" })
         .notNull(),

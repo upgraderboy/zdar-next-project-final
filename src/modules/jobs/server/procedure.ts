@@ -209,28 +209,58 @@ export const jobRouter = createTRPCRouter({
       const job = await db.update(jobs).set({ isPublished: status === "ACTIVE" }).where(and(eq(jobs.id, jobId), eq(jobs.companyId, id)));
       return job;
     }),
-  addJobApplication: candidateProcedure
+    toggleJobApplication: candidateProcedure
     .input(z.object({ jobId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = ctx.user;
       const { jobId } = input;
+  
       if (!ctx.user.defaultResumeId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Default resume not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Default resume not found",
+        });
       }
-      const job = await db.insert(jobApplications).values({
-        jobId,
-        candidateId: id,
-        resumeId: ctx.user.defaultResumeId,
-      });
-      return job;
-    }),
-  removeJobApplication: candidateProcedure
-    .input(z.object({ jobId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const { id } = ctx.user;
-      const { jobId } = input;
-      const job = await db.delete(jobApplications).where(and(eq(jobApplications.candidateId, id), eq(jobApplications.jobId, jobId)));
-      return job;
+  
+      const existing = await db
+        .select()
+        .from(jobApplications)
+        .where(
+          and(
+            eq(jobApplications.jobId, jobId),
+            eq(jobApplications.candidateId, id)
+          )
+        );
+  
+      if (existing.length > 0) {
+        const application = existing[0];
+  
+        if (application.applicationStatus !== "PENDING") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "You can only remove pending applications",
+          });
+        }
+  
+        await db
+          .delete(jobApplications)
+          .where(
+            and(
+              eq(jobApplications.jobId, jobId),
+              eq(jobApplications.candidateId, id)
+            )
+          );
+  
+        return { message: "Application Removed Successfully!" };
+      } else {
+        await db.insert(jobApplications).values({
+          jobId,
+          candidateId: id,
+          resumeId: ctx.user.defaultResumeId,
+        });
+  
+        return { message: "Application Added Successfully!" };
+      }
     }),
   applyOrRemove: candidateProcedure
     .input(z.object({
@@ -282,14 +312,8 @@ export const jobRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { id } = ctx.user;
       const application = await db.select().from(jobApplications).where(and(eq(jobApplications.jobId, input.jobId), eq(jobApplications.candidateId, id))).then(res => res[0]);
-      if (!application) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Application Not Found!"
-        })
-      }
       console.log(application);
-      return application.applicationStatus;
+      return application?.applicationStatus ?? null;
     })
 });
 

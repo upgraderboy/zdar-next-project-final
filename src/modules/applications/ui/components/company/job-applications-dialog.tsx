@@ -13,6 +13,7 @@ import { trpc } from "@/trpc/client"
 import { toast } from "sonner"
 import { Job } from "./schema"
 import { ApplicationStatus } from "./schema"
+import { useRouter } from "next/navigation"
 
 interface JobApplicationsDialogProps {
   job: Job
@@ -24,7 +25,7 @@ export function JobApplicationsDialog({ job, open, onOpenChange }: JobApplicatio
   const [selectedStatuses, setSelectedStatuses] = useState<Record<string, ApplicationStatus>>({})
   const utils = trpc.useUtils()
   const { data: applications } = trpc.applications.getJobApplications.useQuery({ jobId: job.id })
-
+  const router = useRouter();
   const updateStatusMutation = trpc.applications.updateApplicationStatus.useMutation({
     onSuccess: () => {
       utils.applications.getJobApplications.invalidate()
@@ -61,6 +62,7 @@ export function JobApplicationsDialog({ job, open, onOpenChange }: JobApplicatio
 
   const handleViewProfile = (candidateId: string) => {
     // In a real app, this would navigate to the candidate profile
+    router.push(`/candidates/${candidateId}`)
     console.log("View profile for candidate:", candidateId)
   }
 
