@@ -3,7 +3,7 @@ import { pgTable, text, uuid, timestamp, pgEnum, primaryKey, varchar, boolean, i
 import { createInsertSchema, createUpdateSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const subscriptionPeriodEnum = pgEnum("subscription_period", ["MONTHLY", "YEARLY"]);
+export const subscriptionPeriodEnum = pgEnum("subscription_period", ["FREE", "MONTHLY", "YEARLY"]);
 export const disabilityEnum = pgEnum("disability", ["Yes", "No"]);
 export const genderEnum = pgEnum("gender", ["Male", "Female", "Other"]);
 export const experienceLevelEnum = pgEnum("experience_level", ["Entry Level", "Mid Level", "Senior Level"]);
@@ -20,7 +20,7 @@ export const candidates = pgTable("candidates", {
     name: varchar("name", { length: 255 }).notNull(),
     imageUrl: varchar("image_url", { length: 255 }),
     isVerified: boolean("is_verified").default(false),
-    email: varchar("email", { length: 255 }),
+    email: varchar("email", { length: 255 }).unique().notNull(),
     defaultResumeId: uuid("default_resume_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -95,7 +95,7 @@ export const companies = pgTable("companies", {
     name: varchar("name", { length: 255 }),
     logoUrl: text("logo_url"),
     isVerified: boolean("is_verified").default(false),
-    email: varchar("email", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).unique().notNull(),
     firstName: varchar("first_name", { length: 255 }),
     lastName: varchar("last_name", { length: 255 }),
     companyName: varchar("company_name", { length: 255 }).notNull(),
@@ -111,7 +111,7 @@ export const companies = pgTable("companies", {
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     customerId: varchar("customer_id", { length: 256 }),
-    plan: subscriptionPeriodEnum("plan").default("MONTHLY"),
+    plan: subscriptionPeriodEnum("plan").default("FREE"),
     });
 
 // export const candidateRelations = relations(candidates, ({ one, many }) => ({
@@ -227,7 +227,7 @@ export const jobApplications = pgTable("job_applications", {
 export const companySubscription = pgTable("company_subscription", {
     id: uuid("id").defaultRandom().primaryKey(),
     companyId: uuid("company_id").references(() => companies.id, { onDelete: "cascade" }).notNull(),
-    period: subscriptionPeriodEnum("period").default("MONTHLY"),
+    period: subscriptionPeriodEnum("period").default("FREE"),
     startDate: timestamp("start_date", { withTimezone: true }).defaultNow().notNull(),
     endDate: timestamp("end_date", { withTimezone: true }).notNull(),
     subscriptionStatus: varchar("subscription_status", { length: 64 }).default("ACTIVE"),

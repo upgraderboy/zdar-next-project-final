@@ -42,7 +42,7 @@ export const companyRouter = createTRPCRouter({
     companySchema
   ).mutation(async ({ input, ctx }) => {
     console.log(input)
-    const [company] = await db.update(companies).set(input).returning();
+    const [company] = await db.update(companies).set(input).where(eq(companies.clerkId, ctx.user.clerkId)).returning();
     console.log(company)
     const client = await clerkClient()
     await client.users.updateUser(ctx.user.clerkId, {

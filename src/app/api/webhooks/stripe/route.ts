@@ -50,14 +50,14 @@ export async function POST(req: Request) {
                 if (!company) {
                     return new NextResponse("Company not found", { status: 404 });
                 }
-
                 // Save customerId if not already saved
                 if (!company.customerId) {
                     await db
-                        .update(companies)
-                        .set({ customerId })
-                        .where(eq(companies.id, company.id));
+                    .update(companies)
+                    .set({ customerId })
+                    .where(eq(companies.id, company.id));
                 }
+                console.log(JSON.stringify(company, null, 2));
 
                 const lineItems = session.line_items?.data || [];
 
@@ -79,29 +79,30 @@ export async function POST(req: Request) {
                         }
                         const plan = priceId === process.env.STRIPE_YEARLY_PRICE_ID ? "YEARLY" : "MONTHLY";
                         // Insert subscription record
-                        await db.insert(companySubscription).values({
+                        const [subscription] = await db.insert(companySubscription).values({
                             companyId: company.id,
                             startDate: now,
                             endDate,
                             subscriptionStatus: "ACTIVE",
                             period: plan,
-                        });
-
+                        }).returning();
+                        console.log(JSON.stringify(subscription, null, 2));
                         // Update Clerk metadata
                         const client = await clerkClient();
                         await client.users.updateUser(company.clerkId, {
                             publicMetadata: {
                                 isSubscribed: true,
-                                plan: "YEARLY",
+                                plan,
                                 role: "COMPANY",
                                 onboardingComplete: true,
                             },
                         });
 
                         // Update company record
-                        await db.update(companies).set({
-                            plan: "MONTHLY",
-                        }).where(eq(companies.id, company.id));
+                        const data = await db.update(companies).set({
+                            plan,
+                        }).where(eq(companies.id, company.id)).returning();
+                        console.log(JSON.stringify(data, null, 2));
                     }
                 }
 
@@ -133,13 +134,13 @@ export async function POST(req: Request) {
                 // Optionally downgrade company to FREE plan
                 await db
                   .update(companies)
-                  .set({ plan: null })
+                  .set({ plan: "FREE", customerId: null })
                   .where(eq(companies.id, company.id));
                   const client = await clerkClient();
                   await client.users.updateUser(company.clerkId, {
                       publicMetadata: {
                           isSubscribed: false,
-                          plan: null,
+                          plan: "FREE",
                           role: "COMPANY",
                           onboardingComplete: true,
                       },

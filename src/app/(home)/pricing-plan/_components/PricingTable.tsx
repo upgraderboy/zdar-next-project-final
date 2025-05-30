@@ -49,7 +49,7 @@ const plans = [
 export default function PricingTable() {
   const { user } = useUser()
   const { data: billingPortalUrl } = trpc.companies.getBillingPortalUrl.useQuery()
-
+  console.log(billingPortalUrl)
   // Get publicMetadata from Clerk
   const publicMetadata = user?.publicMetadata || {}
   const isSubscribed = publicMetadata?.isSubscribed === true

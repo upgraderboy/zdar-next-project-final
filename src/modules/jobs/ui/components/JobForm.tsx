@@ -23,6 +23,7 @@ interface JobFormProps {
   initialData?: z.infer<typeof jobInsertSchema> & { id?: string }; // id optional for new record
 }
 export default function JobForm({ initialData }: JobFormProps) {
+  console.log(initialData)
   const isEdit = !!initialData?.id;
   const [softSkillsInput, setSoftSkillsInput] = useState(
         (initialData?.softSkills || []).join(", ")
@@ -272,6 +273,7 @@ export default function JobForm({ initialData }: JobFormProps) {
         />
         </div>
         {/* CheckBox for isRemote */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="isRemote"
@@ -279,16 +281,33 @@ export default function JobForm({ initialData }: JobFormProps) {
             <FormItem>
               <FormLabel>Is Remote</FormLabel>
               <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <FormLabel>Is Remote</FormLabel>
+                </div>
               </FormControl>
-              <FormDescription>Is this job remote?</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+        {/* Add Salary */}
+        <FormField
+          control={form.control}
+          name="salaryRange"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary</FormLabel>
+              <FormControl>
+                <Input {...field} type="number" placeholder="e.g. 50000" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        </div>
         {/* Annual Salary */}
         {/* <FormField control={form.control} name="annualSalary" render={({ field }) => (
           <FormItem>

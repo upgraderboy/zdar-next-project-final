@@ -36,7 +36,7 @@ export default function ProfileSection({ companyId }: { companyId: string }) {
                             {
                                 userId === profile.clerkId && (
                                     <Button variant="ghost" className="text-white" asChild>
-                                        <Link href="/companies/profile">
+                                        <Link href="/profile">
                                         <Edit2 className="h-4 w-4" />
                                         </Link>
                                     </Button>

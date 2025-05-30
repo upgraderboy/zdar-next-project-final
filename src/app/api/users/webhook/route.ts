@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm'
 
 import { db } from '@/db'
 import { candidates, companies, resumes } from '@/db/schema'
+import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET
@@ -54,13 +55,13 @@ export async function POST(req: Request) {
   // For this guide, log payload to console
   const eventType = evt.type
   // console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
-  if(eventType === 'user.created') {
+  if (eventType === 'user.created') {
     const client = await clerkClient()
     const { data } = evt;
-    
-    
-    
-    if(!data.unsafe_metadata?.role) {
+
+
+
+    if (!data.unsafe_metadata?.role) {
       (await clerkClient()).users.deleteUser(data.id)
       return new Response('Error: Role not found', { status: 400 })
     }
@@ -73,8 +74,8 @@ export async function POST(req: Request) {
     const name = data.first_name && data.last_name ? data.first_name + ' ' + data.last_name : data.email_addresses[0].email_address;
     // const username = data.username ? data.username : data.email_addresses[0].email_address.split("@")[0];
     console.log("user created working!")
-    
-    if(data.unsafe_metadata.role === "CANDIDATE")
+
+    if (data.unsafe_metadata.role === "CANDIDATE")
       await db.insert(candidates).values({
         clerkId: data.id,
         name,
@@ -82,7 +83,7 @@ export async function POST(req: Request) {
         email: data.email_addresses[0].email_address,
         isVerified: data.email_addresses[0].verification?.status === 'verified'
       })
-    if(data.unsafe_metadata.role === "COMPANY") {
+    if (data.unsafe_metadata.role === "COMPANY") {
       await db.insert(companies).values({
         clerkId: data.id,
         companyName: data.unsafe_metadata.companyName as string,
@@ -93,31 +94,31 @@ export async function POST(req: Request) {
     }
   }
 
-  if(eventType === 'user.updated') {
+  if (eventType === 'user.updated') {
     const { data } = evt;
     const name = data.first_name && data.last_name ? data.first_name + ' ' + data.last_name : data.email_addresses[0].email_address;
     console.log("user updated working!")
-    if( data.unsafe_metadata.role === "CANDIDATE")
+    if (data.unsafe_metadata.role === "CANDIDATE")
       await db.update(candidates).set({
         name,
         imageUrl: data.image_url,
         email: data.email_addresses[0].email_address,
         isVerified: data.email_addresses[0].verification?.status === 'verified'
       }).where(eq(candidates.clerkId, data.id))
-      const [user] = await db.select().from(candidates).where(eq(candidates.clerkId, data.id))
-      console.log("onboardingComplete", data.public_metadata?.onboardingComplete === false, !user.defaultResumeId)
-      console.log("onboardingComplete", data.public_metadata?.onboardingComplete, user.defaultResumeId)
-      if(data.public_metadata?.onboardingComplete === false && !user.defaultResumeId) {
-        const [resume] = await db.insert(resumes).values({
-          userId: user.id,
-          title: "Default Resume (Auto Generated)",
-          description: `Default Resume for ${name}`
-        }).returning();
-        await db.update(candidates).set({
-          defaultResumeId: resume.id
-        }).where(eq(candidates.clerkId, data.id))
-      }
-    if( data.unsafe_metadata.role === "COMPANY")
+    const [user] = await db.select().from(candidates).where(eq(candidates.clerkId, data.id))
+    console.log("onboardingComplete", data.public_metadata?.onboardingComplete === false, user?.defaultResumeId === null)
+    console.log("onboardingComplete", data.public_metadata?.onboardingComplete, user?.defaultResumeId)
+    if (data.public_metadata?.onboardingComplete === false && user?.defaultResumeId === null) {
+      const [resume] = await db.insert(resumes).values({
+        userId: user.id,
+        title: "Default Resume (Auto Generated)",
+        description: `Default Resume for ${name}`
+      }).returning();
+      await db.update(candidates).set({
+        defaultResumeId: resume.id
+      }).where(eq(candidates.clerkId, data.id))
+    }
+    if (data.unsafe_metadata.role === "COMPANY")
       await db.update(companies).set({
         name,
         logoUrl: data.image_url,
@@ -125,20 +126,20 @@ export async function POST(req: Request) {
         isVerified: data.email_addresses[0].verification?.status === 'verified'
       }).where(eq(companies.clerkId, data.id))
   }
-  if(eventType === 'user.deleted') {
+  if (eventType === 'user.deleted') {
     const { data } = evt;
     console.log("user deleted working!")
-    if(!data.id) return new Response('Error: User ID not found', { status: 400 })
+    if (!data.id) return new Response('Error: User ID not found', { status: 400 })
     const existingCandidate = await db.select().from(candidates).where(eq(candidates.clerkId, data.id))
     console.log("existingCandidate", existingCandidate)
-    if(existingCandidate) {
+    if (existingCandidate) {
       await db.delete(candidates).where(eq(candidates.clerkId, data.id))
       return;
     }
     const existingCompany = await db.select().from(companies).where(eq(companies.clerkId, data.id))
-    if(existingCompany) {
+    if (existingCompany) {
       await db.delete(companies).where(eq(companies.clerkId, data.id))
     }
   }
-  return new Response('Webhook received', { status: 200 })
+  return new NextResponse('Webhook received', { status: 200 })
 }
