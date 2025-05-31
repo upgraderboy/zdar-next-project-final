@@ -103,7 +103,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<'div'
         unsafeMetadata: metadata,
       })
 
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_link', redirectUrl: process.env.NEXT_PUBLIC_URL || "http://localhost:3000" })
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_link', redirectUrl: process.env.NEXT_PUBLIC_URL || "http://zdar.fr" })
 
       // Optionally redirect or prompt user to verify
       toast('Check your email for a verification code.')

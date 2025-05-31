@@ -21,8 +21,8 @@ import superjson from 'superjson';
 function getUrl() {
   const base = (() => {
     if (typeof window !== 'undefined') return window.location.origin;
-    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-    return 'http://localhost:3000';
+    if (process.env.NEXT_PUBLIC_URL) return `https://${process.env.NEXT_PUBLIC_URL}`;
+    return 'https://zdar.fr';
   })();
   return `${base}/api/trpc`;
 }

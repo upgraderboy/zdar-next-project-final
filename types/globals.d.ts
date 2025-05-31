@@ -6,6 +6,8 @@ declare global {
     metadata: {
       onboardingComplete?: boolean
       role?: Roles
+      isSubscribed?: boolean | null
+      plan?: "FREE" | "MONTHLY" | "YEARLY"
     }
   }
   interface SessionClaims extends CustomJwtSessionClaims {}
