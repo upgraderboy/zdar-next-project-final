@@ -17,8 +17,12 @@ export const HomeNavBar = ({ role }: { role?: Roles }) => {
                 <div className="flex items-center flex-shrink-0">
                 {
                         isMobile ? (
+                            role && (
+                                <SidebarTrigger defaultChecked={false} />
+                            )
+                        ) : role && (
                             <SidebarTrigger defaultChecked={false} />
-                        ) : <SidebarTrigger defaultChecked={false} />
+                        )
                     }
                     <Link href="/">
                         <div className="flex items-center gap-2">

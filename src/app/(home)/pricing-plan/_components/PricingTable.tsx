@@ -22,7 +22,7 @@ const plans = [
     price: "$0",
     billing: "forever",
     buttonText: "Start for Free",
-    features: ["1 user", "5 projects", "2GB storage", "Basic support"],
+    features: ["Private company account", "Company's public page, accessible by registered candidates", "Company's job offers, accessible by registered candidates", "Environment with advanced analytics on registered candidates' profiles (with direct contact details)", "Advanced reporting tools for data visualization, analysis and extraction", "Possibility to cancel the next subscription the last day of the current month (UTC+1 during the winter/UTC+2 during the summer)"],
   },
   {
     name: "Basic",
@@ -32,7 +32,7 @@ const plans = [
     billing: "per month",
     buttonText: "Subscribe Monthly",
     paymentLink: process.env.STRIPE_MONTHLY_PLAN_LINK || "https://buy.stripe.com/test_8wM4ifak6gmQfo47ss",
-    features: ["5 users", "20 projects", "10GB storage", "Priority support", "Advanced analytics"],
+    features: ["Private company account", "Company's public page, accessible by registered candidates", "Environment with advanced analytics on registered candidates' profiles (with direct contact details)", "Advanced reporting tools for data visualization, analysis and extraction", "Possibility to cancel the next subscription the last day of the current month (UTC+1 during the winter/UTC+2 during the summer)"],
   },
   {
     name: "Premium",
@@ -42,7 +42,7 @@ const plans = [
     billing: "per year",
     buttonText: "Subscribe Yearly",
     paymentLink: process.env.STRIPE_YEARLY_PLAN_LINK || "https://buy.stripe.com/test_bIY9Cz8bY6Mgb7O5kl",
-    features: ["Unlimited users", "Unlimited projects", "100GB storage", "24/7 support", "Custom integrations", "Advanced security"],
+    features: ["Private company account", "Company's public page, accessible by registered candidates", "Company's job offers, accessible by registered candidates", "Environment with advanced analytics on registered candidates' profiles (with direct contact details)", " Advanced reporting tools for data visualization, analysis and extraction", "10% discount for the next renewal yearly subscription", "Possibility to cancel the next yearly subscription 3 months prior to the end date of the current paying plan"],
   },
 ]
 
@@ -72,13 +72,13 @@ export default function PricingTable() {
             )
           } else if (isSubscribed && isCurrentPlan && plan.key !== "FREE") {
             buttonContent = (
-              <Button className="w-full" variant="outline">
+              <Button className="w-full bg-[#2B4356] hover:bg-[#2B4356]/80">
                 <Link href={billingPortalUrl || "#"}>Manage Billing</Link>
               </Button>
             )
           } else if (plan.key === "FREE") {
             buttonContent = (
-              <Button className="w-full" variant="outline">
+              <Button className="w-full">
                 <Link href="/">Start Free</Link>
               </Button>
             )
@@ -101,9 +101,9 @@ export default function PricingTable() {
                   {plan.price}
                   <span className="text-sm font-normal text-muted-foreground">/{plan.billing}</span>
                 </div>
-                <ul className="space-y-2 mb-4">
+                <ul className="space-y-4 mb-4">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="w-fit mx-auto flex items-center">
+                    <li key={feature} className="w-fit mx-auto flex items-center text-justify">
                       <Check className="mr-2 h-4 w-4 text-primary" />
                       {feature}
                     </li>

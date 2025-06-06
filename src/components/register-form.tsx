@@ -125,7 +125,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<'div'
               <div className="flex flex-col gap-6">
                 <div className="text-center">
                   <h1 className="text-2xl font-bold">Create an account</h1>
-                  <p className="text-sm text-muted-foreground">Sign up as a candidate or company</p>
+                  <p className="text-sm text-muted-foreground">Sign up as A Candidate or A Company</p>
                 </div>
 
                 <FormField
@@ -133,7 +133,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<'div'
                   name="role"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Signup As</FormLabel>
+                      <FormLabel>Sign Up as</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>

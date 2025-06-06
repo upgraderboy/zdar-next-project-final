@@ -23,7 +23,11 @@ export const HomeLayout = ({ children, role, userId }: HomeLayoutProps) => {
 
         {/* Main Content + Sidebar */}
         <div className="flex flex-1">
-          <NavigationSidebar role={role} userId={userId} />
+          {
+            userId && (
+              <NavigationSidebar role={role} userId={userId} />
+            )
+          }
 
           {/* Page Content */}
           <main className="flex-1 overflow-y-auto my-10">
