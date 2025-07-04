@@ -19,7 +19,7 @@ const plans = [
     name: "Free",
     key: "FREE",
     description: "Best for personal use",
-    price: "$0",
+    price: "€0",
     billing: "forever",
     buttonText: "Start for Free",
     features: ["Private company account", "Company's public page, accessible by registered candidates", "Company's job offers, accessible by registered candidates", "Environment with advanced analytics on registered candidates' profiles (with direct contact details)", "Advanced reporting tools for data visualization, analysis and extraction", "Possibility to cancel the next subscription the last day of the current month (UTC+1 during the winter/UTC+2 during the summer)"],
